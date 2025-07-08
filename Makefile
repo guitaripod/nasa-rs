@@ -80,7 +80,7 @@ clean:
 # Quick commands for common tasks
 quick-test-apod:
 	@echo "Quick test: APOD endpoint"
-	@curl -s "http://localhost:8787/api/apod?api_key=DEMO_KEY" | jq .
+	@curl -s "http://localhost:8787/api/apod" | jq .
 
 quick-test-cli-apod: build-cli
 	@echo "Quick test: CLI APOD command"

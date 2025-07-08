@@ -4,7 +4,6 @@
 # Tests all endpoints to ensure they're working correctly
 
 BASE_URL="${1:-http://localhost:8787}"
-API_KEY="DEMO_KEY"
 
 echo "Testing NASA API Worker at: $BASE_URL"
 echo "========================================"
@@ -23,9 +22,9 @@ test_endpoint() {
     echo -n "Testing $name... "
     
     if [ -n "$params" ]; then
-        url="$BASE_URL$endpoint?$params&api_key=$API_KEY"
+        url="$BASE_URL$endpoint?$params"
     else
-        url="$BASE_URL$endpoint?api_key=$API_KEY"
+        url="$BASE_URL$endpoint"
     fi
     
     response=$(curl -s -o /dev/null -w "%{http_code}" "$url")

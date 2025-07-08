@@ -124,13 +124,13 @@ mod integration_tests {
         // Test that cache keys are consistent regardless of parameter order
         let params1 = vec![
             ("date", "2024-01-01"),
-            ("api_key", "test_key"),
             ("hd", "true"),
+            ("count", "5"),
         ];
         
         let params2 = vec![
             ("hd", "true"),
-            ("api_key", "test_key"),
+            ("count", "5"),
             ("date", "2024-01-01"),
         ];
         
