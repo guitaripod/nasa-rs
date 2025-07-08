@@ -1,5 +1,5 @@
 use worker::{Request, Response, RouteContext};
-use crate::error::{NasaApiError, Result};
+use crate::error::NasaApiError;
 use crate::cache::{CacheManager, get_cache_key};
 use crate::utils;
 
@@ -13,8 +13,7 @@ async fn make_ssd_request(url: &str) -> worker::Result<Response> {
         let status = response.status();
         let error_text = response.text().await.unwrap_or_default();
         return Err(NasaApiError::NasaApi(format!(
-            "JPL SSD API returned {} - {}",
-            status, error_text
+            "JPL SSD API returned {status} - {error_text}"
         )).into());
     }
     
@@ -49,7 +48,7 @@ pub async fn get_close_approach(_req: Request, ctx: RouteContext<HandlerContext>
         } else {
             url.push('&');
         }
-        url.push_str(&format!("{}={}", key, urlencoding::encode(&value)));
+        url.push_str(&format!("{key}={}", urlencoding::encode(value)));
     }
     
     let mut response = make_ssd_request(&url).await?;
@@ -95,7 +94,7 @@ pub async fn get_small_body(_req: Request, ctx: RouteContext<HandlerContext>) ->
         } else {
             url.push('&');
         }
-        url.push_str(&format!("{}={}", key, urlencoding::encode(&value)));
+        url.push_str(&format!("{key}={}", urlencoding::encode(value)));
     }
     
     let mut response = make_ssd_request(&url).await?;
@@ -135,7 +134,7 @@ pub async fn get_sentry(_req: Request, ctx: RouteContext<HandlerContext>) -> wor
         } else {
             url.push('&');
         }
-        url.push_str(&format!("{}={}", key, urlencoding::encode(&value)));
+        url.push_str(&format!("{key}={}", urlencoding::encode(value)));
     }
     
     let mut response = make_ssd_request(&url).await?;
@@ -210,7 +209,7 @@ pub async fn get_nhats(_req: Request, ctx: RouteContext<HandlerContext>) -> work
         } else {
             url.push('&');
         }
-        url.push_str(&format!("{}={}", key, urlencoding::encode(&value)));
+        url.push_str(&format!("{key}={}", urlencoding::encode(value)));
     }
     
     let mut response = make_ssd_request(&url).await?;
@@ -250,7 +249,7 @@ pub async fn get_fireballs(_req: Request, ctx: RouteContext<HandlerContext>) -> 
         } else {
             url.push('&');
         }
-        url.push_str(&format!("{}={}", key, urlencoding::encode(&value)));
+        url.push_str(&format!("{key}={}", urlencoding::encode(value)));
     }
     
     let mut response = make_ssd_request(&url).await?;

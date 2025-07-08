@@ -1,5 +1,5 @@
 use worker::{Request, Response, RouteContext};
-use crate::error::{NasaApiError, Result};
+use crate::error::NasaApiError;
 use crate::cache::{CacheManager, get_cache_key, get_ttl_for_endpoint};
 use crate::utils;
 
@@ -13,8 +13,7 @@ async fn make_media_request(url: &str) -> worker::Result<Response> {
         let status = response.status();
         let error_text = response.text().await.unwrap_or_default();
         return Err(NasaApiError::NasaApi(format!(
-            "NASA Media API returned {} - {}",
-            status, error_text
+            "NASA Media API returned {status} - {error_text}"
         )).into());
     }
     
@@ -50,7 +49,7 @@ pub async fn search_media(_req: Request, ctx: RouteContext<HandlerContext>) -> w
             } else {
                 url.push('&');
             }
-            url.push_str(&format!("{}={}", key, urlencoding::encode(&value)));
+            url.push_str(&format!("{key}={}", urlencoding::encode(value)));
         }
     }
     
@@ -74,7 +73,7 @@ pub async fn get_asset(_req: Request, ctx: RouteContext<HandlerContext>) -> work
         .ok_or_else(|| NasaApiError::BadRequest("Missing nasa_id parameter".to_string()))?;
     
     // Check cache
-    let cache_key = format!("media/asset:{}", nasa_id);
+    let cache_key = format!("media/asset:{nasa_id}");
     let cache_manager = CacheManager::new(env)?;
     
     if let Some(cached) = cache_manager.get(&cache_key).await? {
@@ -104,7 +103,7 @@ pub async fn get_metadata(_req: Request, ctx: RouteContext<HandlerContext>) -> w
         .ok_or_else(|| NasaApiError::BadRequest("Missing nasa_id parameter".to_string()))?;
     
     // Check cache
-    let cache_key = format!("media/metadata:{}", nasa_id);
+    let cache_key = format!("media/metadata:{nasa_id}");
     let cache_manager = CacheManager::new(env)?;
     
     if let Some(cached) = cache_manager.get(&cache_key).await? {
@@ -134,7 +133,7 @@ pub async fn get_captions(_req: Request, ctx: RouteContext<HandlerContext>) -> w
         .ok_or_else(|| NasaApiError::BadRequest("Missing nasa_id parameter".to_string()))?;
     
     // Check cache
-    let cache_key = format!("media/captions:{}", nasa_id);
+    let cache_key = format!("media/captions:{nasa_id}");
     let cache_manager = CacheManager::new(env)?;
     
     if let Some(cached) = cache_manager.get(&cache_key).await? {

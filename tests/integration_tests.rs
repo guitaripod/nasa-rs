@@ -150,7 +150,7 @@ mod integration_tests {
             ("InternalServerError", 500),
         ];
         
-        for (error_type, expected_code) in error_types {
+        for (error_type, _expected_code) in error_types {
             let error_response = json!({
                 "error": error_type,
                 "message": "Test error message"
@@ -197,9 +197,9 @@ fn generate_cache_key(endpoint: &str, params: &[(&str, &str)]) -> String {
     
     let param_string = sorted_params
         .iter()
-        .map(|(k, v)| format!("{}={}", k, v))
+        .map(|(k, v)| format!("{k}={v}"))
         .collect::<Vec<_>>()
         .join("&");
     
-    format!("{}:{}", endpoint, param_string)
+    format!("{endpoint}:{param_string}")
 }

@@ -1,5 +1,4 @@
 use worker::{Request, Response, RouteContext};
-use crate::error::Result;
 use crate::cache::{CacheManager, get_cache_key, get_ttl_for_endpoint};
 use crate::utils;
 use super::{make_nasa_request, HandlerContext};
@@ -30,7 +29,7 @@ pub async fn get_apod(req: Request, ctx: RouteContext<HandlerContext>) -> worker
             } else {
                 url.push('&');
             }
-            url.push_str(&format!("{}={}", key, value));
+            url.push_str(&format!("{key}={value}"));
         }
     }
     

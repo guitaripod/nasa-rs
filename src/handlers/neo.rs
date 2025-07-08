@@ -1,5 +1,5 @@
 use worker::{Request, Response, RouteContext};
-use crate::error::{NasaApiError, Result};
+use crate::error::NasaApiError;
 use crate::cache::{CacheManager, get_cache_key, get_ttl_for_endpoint};
 use crate::utils;
 use super::make_nasa_request;
@@ -31,7 +31,7 @@ pub async fn get_neo_feed(_req: Request, ctx: RouteContext<HandlerContext>) -> w
             } else {
                 url.push('&');
             }
-            url.push_str(&format!("{}={}", key, value));
+            url.push_str(&format!("{key}={value}"));
         }
     }
     
@@ -57,7 +57,7 @@ pub async fn get_neo_lookup(_req: Request, ctx: RouteContext<HandlerContext>) ->
     let _params = utils::parse_query_params(&_req)?;
     
     // Check cache
-    let cache_key = format!("neo/lookup:{}", asteroid_id);
+    let cache_key = format!("neo/lookup:{asteroid_id}");
     let cache_manager = CacheManager::new(env)?;
     
     if let Some(cached) = cache_manager.get(&cache_key).await? {
@@ -66,7 +66,7 @@ pub async fn get_neo_lookup(_req: Request, ctx: RouteContext<HandlerContext>) ->
         return Ok(response);
     }
     
-    let url = format!("https://api.nasa.gov/neo/rest/v1/neo/{}", asteroid_id);
+    let url = format!("https://api.nasa.gov/neo/rest/v1/neo/{asteroid_id}");
     
     let mut response = make_nasa_request(&url, &ctx).await?;
     let body = response.text().await?;
@@ -106,7 +106,7 @@ pub async fn get_neo_browse(_req: Request, ctx: RouteContext<HandlerContext>) ->
             } else {
                 url.push('&');
             }
-            url.push_str(&format!("{}={}", key, value));
+            url.push_str(&format!("{key}={value}"));
         }
     }
     

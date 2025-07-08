@@ -1,5 +1,5 @@
 use worker::{Request, Response, RouteContext};
-use crate::error::{NasaApiError, Result};
+use crate::error::NasaApiError;
 use crate::cache::CacheManager;
 use crate::utils;
 
@@ -10,9 +10,9 @@ async fn make_epic_request(url: &str, ctx: &RouteContext<HandlerContext>) -> wor
     
     // EPIC API uses api_key parameter differently than other NASA APIs
     let full_url = if url.contains('?') {
-        format!("{}&api_key={}", url, api_key)
+        format!("{url}&api_key={api_key}")
     } else {
-        format!("{}?api_key={}", url, api_key)
+        format!("{url}?api_key={api_key}")
     };
     
     let response = reqwest::get(&full_url)
@@ -23,8 +23,7 @@ async fn make_epic_request(url: &str, ctx: &RouteContext<HandlerContext>) -> wor
         let status = response.status();
         let error_text = response.text().await.unwrap_or_default();
         return Err(NasaApiError::NasaApi(format!(
-            "NASA EPIC API returned {} - {}",
-            status, error_text
+            "NASA EPIC API returned {status} - {error_text}"
         )).into());
     }
     
@@ -68,7 +67,7 @@ pub async fn get_natural_date(_req: Request, ctx: RouteContext<HandlerContext>) 
         .ok_or_else(|| NasaApiError::BadRequest("Missing date parameter".to_string()))?;
     
     // Check cache
-    let cache_key = format!("epic/natural/date:{}", date);
+    let cache_key = format!("epic/natural/date:{date}");
     let cache_manager = CacheManager::new(env)?;
     
     if let Some(cached) = cache_manager.get(&cache_key).await? {
@@ -77,7 +76,7 @@ pub async fn get_natural_date(_req: Request, ctx: RouteContext<HandlerContext>) 
         return Ok(response);
     }
     
-    let url = format!("https://api.nasa.gov/EPIC/api/natural/date/{}", date);
+    let url = format!("https://api.nasa.gov/EPIC/api/natural/date/{date}");
     
     let mut response = make_epic_request(&url, &ctx).await?;
     let body = response.text().await?;
@@ -125,7 +124,7 @@ pub async fn get_enhanced_date(_req: Request, ctx: RouteContext<HandlerContext>)
         .ok_or_else(|| NasaApiError::BadRequest("Missing date parameter".to_string()))?;
     
     // Check cache
-    let cache_key = format!("epic/enhanced/date:{}", date);
+    let cache_key = format!("epic/enhanced/date:{date}");
     let cache_manager = CacheManager::new(env)?;
     
     if let Some(cached) = cache_manager.get(&cache_key).await? {
@@ -134,7 +133,7 @@ pub async fn get_enhanced_date(_req: Request, ctx: RouteContext<HandlerContext>)
         return Ok(response);
     }
     
-    let url = format!("https://api.nasa.gov/EPIC/api/enhanced/date/{}", date);
+    let url = format!("https://api.nasa.gov/EPIC/api/enhanced/date/{date}");
     
     let mut response = make_epic_request(&url, &ctx).await?;
     let body = response.text().await?;

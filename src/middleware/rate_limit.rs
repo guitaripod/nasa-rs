@@ -10,15 +10,17 @@ pub struct RateLimitInfo {
     pub window_start: DateTime<Utc>,
 }
 
+#[allow(dead_code)]
 pub struct RateLimiter {
     kv: KvStore,
     requests_per_hour: u32,
 }
 
+#[allow(dead_code)]
 impl RateLimiter {
     pub fn new(env: &Env, requests_per_hour: u32) -> Result<Self> {
         let kv = env.kv("RATE_LIMIT")
-            .map_err(|e| NasaApiError::Cache(format!("Failed to get rate limit KV: {}", e)))?;
+            .map_err(|e| NasaApiError::Cache(format!("Failed to get rate limit KV: {e}")))?;
         
         Ok(Self {
             kv,
@@ -28,7 +30,7 @@ impl RateLimiter {
     
     pub async fn check_rate_limit(&self, req: &Request) -> Result<bool> {
         let client_ip = get_client_ip(req);
-        let key = format!("rate_limit:{}", client_ip);
+        let key = format!("rate_limit:{client_ip}");
         let now = Utc::now();
         
         match self.kv.get(&key).json::<RateLimitInfo>().await {
@@ -50,11 +52,11 @@ impl RateLimiter {
                 // Update the count
                 self.kv
                     .put(&key, serde_json::to_string(&info)?)
-                    .map_err(|e| NasaApiError::Cache(format!("Failed to update rate limit: {}", e)))?
+                    .map_err(|e| NasaApiError::Cache(format!("Failed to update rate limit: {e}")))?
                     .expiration_ttl(3600) // 1 hour
                     .execute()
                     .await
-                    .map_err(|e| NasaApiError::Cache(format!("Failed to execute rate limit update: {}", e)))?;
+                    .map_err(|e| NasaApiError::Cache(format!("Failed to execute rate limit update: {e}")))?;
                 
                 Ok(true)
             }
@@ -67,15 +69,15 @@ impl RateLimiter {
                 
                 self.kv
                     .put(&key, serde_json::to_string(&info)?)
-                    .map_err(|e| NasaApiError::Cache(format!("Failed to set rate limit: {}", e)))?
+                    .map_err(|e| NasaApiError::Cache(format!("Failed to set rate limit: {e}")))?
                     .expiration_ttl(3600) // 1 hour
                     .execute()
                     .await
-                    .map_err(|e| NasaApiError::Cache(format!("Failed to execute rate limit set: {}", e)))?;
+                    .map_err(|e| NasaApiError::Cache(format!("Failed to execute rate limit set: {e}")))?;
                 
                 Ok(true)
             }
-            Err(e) => Err(NasaApiError::Cache(format!("Failed to get rate limit: {}", e))),
+            Err(e) => Err(NasaApiError::Cache(format!("Failed to get rate limit: {e}"))),
         }
     }
 }
