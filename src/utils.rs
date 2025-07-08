@@ -28,8 +28,8 @@ pub fn get_api_key(env: &worker::Env) -> worker::Result<String> {
         return Ok(api_key.to_string());
     }
     
-    // Use demo key as last resort
-    Ok("DEMO_KEY".to_string())
+    // Return error if no API key is found
+    Err(worker::Error::RustError("NASA_API_KEY not found in secrets or environment variables".to_string()))
 }
 
 pub fn parse_query_params(req: &Request) -> worker::Result<Vec<(String, String)>> {
