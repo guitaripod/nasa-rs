@@ -15,7 +15,6 @@ pub async fn run_interactive_mode(context: &CommandContext) -> Result<(), Box<dy
     
     let client = ApiClient::new(
         context.config.api_endpoint.clone(),
-        context.config.api_key.clone(),
         context.config.cache_dir.clone(),
         context.config.use_cache,
         context.config.cache_ttl_minutes,
@@ -432,8 +431,7 @@ async fn explore_earth(client: &ApiClient, output_format: &OutputFormat) -> Resu
                 let lat = params.get("lat").unwrap();
                 let lon = params.get("lon").unwrap();
                 let date = params.get("date").unwrap();
-                let api_key = client.api_key().unwrap_or("DEMO_KEY");
-                let url = format!("{base_url}/api/earth/imagery?lat={lat}&lon={lon}&date={date}&api_key={api_key}");
+                let url = format!("{base_url}/api/earth/imagery?lat={lat}&lon={lon}&date={date}");
                 println!("{url}");
             }
         }

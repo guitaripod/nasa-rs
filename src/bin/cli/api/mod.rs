@@ -8,18 +8,16 @@ use sha2::{Sha256, Digest};
 pub struct ApiClient {
     client: Client,
     base_url: String,
-    api_key: Option<String>,
     cache_dir: PathBuf,
     use_cache: bool,
     cache_ttl_minutes: u64,
 }
 
 impl ApiClient {
-    pub fn new(base_url: String, api_key: Option<String>, cache_dir: PathBuf, use_cache: bool, cache_ttl_minutes: u64) -> Self {
+    pub fn new(base_url: String, cache_dir: PathBuf, use_cache: bool, cache_ttl_minutes: u64) -> Self {
         Self {
             client: Client::new(),
             base_url,
-            api_key,
             cache_dir,
             use_cache,
             cache_ttl_minutes,
@@ -30,17 +28,9 @@ impl ApiClient {
         &self.base_url
     }
     
-    pub fn api_key(&self) -> Option<&str> {
-        self.api_key.as_deref()
-    }
     
-    pub async fn get(&self, path: &str, mut params: HashMap<String, String>) -> Result<Value, Box<dyn std::error::Error>> {
+    pub async fn get(&self, path: &str, params: HashMap<String, String>) -> Result<Value, Box<dyn std::error::Error>> {
         let url = format!("{}{path}", self.base_url);
-        
-        // Add API key if available
-        if let Some(api_key) = &self.api_key {
-            params.insert("api_key".to_string(), api_key.clone());
-        }
         
         // Check cache first
         if self.use_cache {

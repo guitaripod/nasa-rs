@@ -37,7 +37,6 @@ pub async fn execute_command(
     // Create API client
     let client = ApiClient::new(
         context.config.api_endpoint.clone(),
-        context.config.api_key.clone(),
         context.config.cache_dir.clone(),
         context.config.use_cache,
         context.config.cache_ttl_minutes,
