@@ -146,6 +146,59 @@ mythology Fear and Panic.
 
 </details>
 
+### Get APODs for Date Range
+
+```bash
+$ nasa-cli apod range 2025-01-01 2025-01-03
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+Found 3 items
+────────────────────────────────────────
+
+► Item 1
+Title: Alpha Centauri: The Closest Star System
+Date: 2025-01-01
+URL: https://apod.nasa.gov/apod/image/2501/AlphaCen_Cantrell_960.jpg
+Media Type: image
+Copyright: Telescope Live, Heaven's Mirror Observatory; Processing: Chris Cantrell
+
+► Item 2
+Title: Solar Analemma 2024
+Date: 2025-01-02
+URL: https://apod.nasa.gov/apod/image/2501/solaranalemma2024-4-5BetulT1024.jpeg
+Media Type: image
+Copyright: Betul Turksoy
+
+► Item 3
+Title: Eclipse Pair
+Date: 2025-01-03
+URL: https://apod.nasa.gov/apod/image/2501/APODEclipsePair1024.jpg
+Media Type: image
+Copyright: Josh Dury
+```
+
+</details>
+
+### Batch APOD Retrieval
+
+```bash
+$ nasa-cli apod batch --count 5 --thumbs
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+count: 5
+images: [5 random APOD entries with thumbnail URLs included]
+```
+
+</details>
+
 ### JSON Output
 
 ```bash
@@ -293,6 +346,130 @@ $ nasa-cli asteroids feed -o table
 | links              | {3 fields}  |
 | near_earth_objects | {8 fields}  |
 +--------------------+-------------+
+```
+
+</details>
+
+### Extended Feed with Filters
+
+```bash
+$ nasa-cli asteroids feed-extended --hazardous --size medium --max-distance 0.1
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+element_count: 3
+filters_applied: {
+  "hazardous": true,
+  "size": "medium",
+  "distance_range": {
+    "min": null,
+    "max": "0.1"
+  }
+}
+asteroids: [
+  {
+    "name": "(2021 AF8)",
+    "is_potentially_hazardous_asteroid": true,
+    "estimated_diameter": {
+      "kilometers": {
+        "estimated_diameter_max": 0.5303
+      }
+    },
+    "close_approach_data": [...]
+  },
+  // ... more filtered asteroids
+]
+```
+
+</details>
+
+### Batch Asteroid Lookup
+
+```bash
+$ nasa-cli asteroids batch-lookup 3542519 2153306 54379375
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+count: 3
+asteroids: [
+  {
+    "id": "3542519",
+    "data": {
+      "name": "(2010 PK9)",
+      "absolute_magnitude_h": 24.51,
+      // ... full asteroid data
+    }
+  },
+  {
+    "id": "2153306",
+    "data": {
+      "name": "(153306) 2001 JL1",
+      // ... full asteroid data
+    }
+  },
+  {
+    "id": "54379375",
+    "data": {
+      "name": "(2023 VD3)",
+      // ... full asteroid data
+    }
+  }
+]
+```
+
+</details>
+
+### Weekly Close Approach Summary
+
+```bash
+$ nasa-cli asteroids weekly-summary
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+week_of: 2025-07-07
+week_ending: 2025-07-13
+summary: {
+  "total_asteroids": 83,
+  "hazardous_asteroids": 5,
+  "closest_approach": {
+    "distance_au": 0.0101566751,
+    "asteroid": "(2025 MC92)"
+  }
+}
+element_count: 83
+```
+
+</details>
+
+### Weekly Summary for Next Week
+
+```bash
+$ nasa-cli asteroids weekly-summary 1
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+week_of: 2025-07-14
+week_ending: 2025-07-20
+summary: {
+  "total_asteroids": 67,
+  "hazardous_asteroids": 4,
+  "closest_approach": {
+    "distance_au": 0.0089234,
+    "asteroid": "(2025 BA)"
+  }
+}
 ```
 
 </details>
@@ -577,6 +754,74 @@ version: 03
 
 </details>
 
+### Bulk Image Retrieval for Date Range
+
+```bash
+$ nasa-cli epic bulk natural --start-date 2025-01-01 --end-date 2025-01-02 --limit 2
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+count: 4
+start_date: 2025-01-01
+end_date: 2025-01-02
+type: natural
+images: [
+  {
+    "date": "2025-01-01 00:13:03",
+    "identifier": "20250101001751",
+    "image": "epic_1b_20250101001751",
+    "caption": "This image was taken by NASA's EPIC camera onboard the NOAA DSCOVR spacecraft",
+    // ... coordinate data
+  },
+  // ... more images
+]
+```
+
+</details>
+
+### Monthly Archive
+
+```bash
+$ nasa-cli epic archive enhanced 2025 1
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+count: 672
+year: 2025
+month: 1
+type: enhanced
+images: [all enhanced images from January 2025]
+```
+
+</details>
+
+### Download Image Set
+
+```bash
+$ nasa-cli epic download-set natural 2025-01-01 --save-to ./epic-images --format png
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+status: download_planned
+count: 22
+date: 2025-01-01
+type: natural
+directory: ./epic-images
+```
+
+*Note: This currently shows what would be downloaded. Actual download functionality can be implemented.*
+
+</details>
+
 ## Mars Rover Photos
 
 ### Mission Manifest
@@ -724,6 +969,71 @@ $ nasa-cli mars photos opportunity 5111
 ```
 photos: [1 items]
 ```
+
+</details>
+
+### Batch Photo Retrieval by Sol Range
+
+```bash
+$ nasa-cli mars batch curiosity --sol-start 3000 --sol-end 3001 --limit 5
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+count: 5
+photos: [
+  {
+    "id": 787577,
+    "sol": 3000,
+    "camera": {
+      "name": "FHAZ",
+      "full_name": "Front Hazard Avoidance Camera"
+    },
+    "earth_date": "2021-01-13",
+    "img_src": "https://mars.nasa.gov/msl-raw-images/..."
+  },
+  // ... more photos
+]
+```
+
+</details>
+
+### Collection with Multiple Cameras
+
+```bash
+$ nasa-cli mars collection curiosity 3000 --cameras FHAZ,RHAZ,NAVCAM --all-pages
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+count: 150
+sol: 3000
+rover: curiosity
+photos: [150 items from all specified cameras]
+```
+
+</details>
+
+### Download Mars Photos
+
+```bash
+$ nasa-cli mars download curiosity 3000 --save-to ./mars-sol-3000 --camera NAVCAM
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+status: download_planned
+count: 12
+directory: ./mars-sol-3000
+```
+
+*Note: This currently shows what would be downloaded. Actual download functionality can be implemented.*
 
 </details>
 
@@ -915,6 +1225,80 @@ Error: API error 500 Internal Server Error: Internal Server Error
 ```
 
 *Note: The Media Asset endpoint is currently experiencing issues*
+
+</details>
+
+### Collection Search (All Pages)
+
+```bash
+$ nasa-cli media collection apollo11 --all-pages --limit 100
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+query: apollo11
+total_items: 100
+collection: {
+  items: [100 items matching apollo11]
+}
+```
+
+</details>
+
+### Batch Asset Retrieval
+
+```bash
+$ nasa-cli media batch-assets as11-40-5903 as11-40-5877 as11-40-5875
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+count: 3
+assets: [
+  {
+    "nasa_id": "as11-40-5903",
+    "asset": {
+      // asset data
+    }
+  },
+  {
+    "nasa_id": "as11-40-5877",
+    "asset": {
+      // asset data
+    }
+  },
+  {
+    "nasa_id": "as11-40-5875",
+    "asset": {
+      // asset data
+    }
+  }
+]
+```
+
+</details>
+
+### Download Search Results
+
+```bash
+$ nasa-cli media download-results "mars rover" --media-type image --limit 50 --save-to ./nasa-images
+```
+
+<details>
+<summary>Click to expand output</summary>
+
+```
+status: download_planned
+query: mars rover
+count: 50
+directory: ./nasa-images
+```
+
+*Note: This currently shows what would be downloaded. Actual download functionality can be implemented.*
 
 ## SSD/CNEOS (Solar System Dynamics)
 
