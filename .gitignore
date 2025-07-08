@@ -1,0 +1,8 @@
+/target
+/build
+/node_modules
+wrangler.log
+*.log
+.DS_Store
+worker-configuration.d.ts
+.wrangler/

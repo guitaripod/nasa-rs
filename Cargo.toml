@@ -1,0 +1,79 @@
+[package]
+name = "nasa-rs"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[package.metadata.wasm-opt]
+wasm-opt = false
+
+[dependencies]
+worker = "0.6.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+reqwest = { version = "0.11", default-features = false, features = ["json", "rustls-tls"] }
+chrono = { version = "0.4", features = ["serde"] }
+async-trait = "0.1"
+futures = "0.3"
+url = "2.4"
+base64 = "0.21"
+sha2 = "0.10"
+hex = "0.4"
+thiserror = "1.0"
+urlencoding = "2.1"
+console_error_panic_hook = "0.1"
+
+# CLI dependencies
+[dependencies.clap]
+version = "4.4"
+features = ["derive", "cargo", "wrap_help"]
+optional = true
+
+[dependencies.tokio]
+version = "1.35"
+features = ["full"]
+optional = true
+
+[dependencies.colored]
+version = "2.1"
+optional = true
+
+[dependencies.prettytable-rs]
+version = "0.10"
+optional = true
+
+[dependencies.indicatif]
+version = "0.17"
+optional = true
+
+[dependencies.toml]
+version = "0.8"
+optional = true
+
+[dependencies.dialoguer]
+version = "0.11"
+optional = true
+
+[dependencies.dirs]
+version = "5.0"
+optional = true
+
+[features]
+default = []
+cli = ["clap", "tokio", "colored", "prettytable-rs", "indicatif", "toml", "dialoguer", "dirs"]
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+codegen-units = 1
+
+[[bin]]
+name = "nasa-cli"
+path = "src/bin/nasa_cli.rs"
+required-features = ["cli"]
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
