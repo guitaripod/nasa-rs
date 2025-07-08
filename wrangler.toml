@@ -4,7 +4,7 @@ compatibility_date = "2024-01-01"
 workers_dev = true
 
 [build]
-command = "cargo install -q worker-build && ~/.cargo/bin/worker-build --release --no-opt"
+command = "cargo install -q worker-build && worker-build --release"
 
 [vars]
 ENVIRONMENT = "production"
@@ -18,7 +18,6 @@ enabled = true
 
 # Add your NASA API key as a secret using:
 # wrangler secret put NASA_API_KEY
-# Value: YOUR_NASA_API_KEY_HERE
 
 [[kv_namespaces]]
 binding = "NASA_CACHE"
