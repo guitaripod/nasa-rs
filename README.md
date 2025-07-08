@@ -79,6 +79,18 @@ nasa mars photos curiosity --sol 1000 --camera NAVCAM
 nasa media search --query "apollo 11" --media-type image
 ```
 
+## View Documentation
+
+To view the interactive documentation and examples locally:
+
+```bash
+# From the project root, just run:
+./serve
+
+# Opens http://localhost:8000 in your browser
+# Press Ctrl+C to stop
+```
+
 ## Supported NASA APIs
 
 <details>
