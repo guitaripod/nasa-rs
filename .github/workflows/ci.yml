@@ -77,13 +77,6 @@ jobs:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       run: |
         wrangler deploy
-    
-    - name: Set NASA API Key secret
-      env:
-        CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        NASA_API_KEY: ${{ secrets.NASA_API_KEY }}
-      run: |
-        echo "$NASA_API_KEY" | wrangler secret put NASA_API_KEY
 
   release:
     name: Create Release
