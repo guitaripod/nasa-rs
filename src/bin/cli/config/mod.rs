@@ -7,7 +7,6 @@ use crate::cli::output::OutputFormat;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub api_endpoint: String,
-    pub api_key: Option<String>,
     pub output_format: OutputFormat,
     pub use_cache: bool,
     pub cache_dir: PathBuf,
@@ -22,7 +21,6 @@ impl Default for Config {
             
         Self {
             api_endpoint: "https://nasa-api-worker.guitaripod.workers.dev".to_string(),
-            api_key: None,
             output_format: OutputFormat::Pretty,
             use_cache: true,
             cache_dir,
@@ -79,7 +77,6 @@ impl ConfigManager {
         
         match key {
             "api_endpoint" => config.api_endpoint = value.to_string(),
-            "api_key" => config.api_key = Some(value.to_string()),
             "output_format" => {
                 use std::str::FromStr;
                 config.output_format = OutputFormat::from_str(value)?;

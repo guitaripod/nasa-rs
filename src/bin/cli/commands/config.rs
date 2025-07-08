@@ -13,7 +13,6 @@ pub async fn execute(
             let config = &context.config;
             let config_json = json!({
                 "api_endpoint": config.api_endpoint,
-                "api_key": config.api_key.as_ref().map(|_| "<hidden>"),
                 "output_format": format!("{:?}", config.output_format),
                 "use_cache": config.use_cache,
                 "cache_dir": config.cache_dir.display().to_string(),
@@ -30,7 +29,6 @@ pub async fn execute(
             
             match key.as_str() {
                 "api_endpoint" => config.api_endpoint = value.clone(),
-                "api_key" => config.api_key = Some(value.clone()),
                 "output_format" => {
                     config.output_format = match value.as_str() {
                         "json" => OutputFormat::Json,
