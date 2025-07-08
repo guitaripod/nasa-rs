@@ -409,6 +409,29 @@ code {
     border-bottom: 1px solid var(--border-color);
 }
 
+.cli-tabs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border-color);
+    max-width: 100%;
+}
+
+@media (min-width: 768px) {
+    .cli-tabs-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .cli-tabs-grid {
+        grid-template-columns: repeat(4, 1fr);
+        max-height: none;
+    }
+}
+
 .cli-tab {
     background: none;
     border: 1px solid var(--border-color);

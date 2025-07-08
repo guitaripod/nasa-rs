@@ -62,7 +62,7 @@
                         <span class="stat-label">NASA APIs</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-value">50+</span>
+                        <span class="stat-value">70+</span>
                         <span class="stat-label">Commands</span>
                     </div>
                     <div class="stat">
@@ -139,24 +139,28 @@ nasa-cli apod today</code></pre>
 
     <section id="examples" class="examples">
         <div class="container">
-            <h2 class="section-title">Interactive Examples</h2>
-            <p class="section-subtitle">Explore the CLI capabilities with real command outputs</p>
+            <h2 class="section-title">CLI Command Examples</h2>
+            <p class="section-subtitle">Explore all available commands with real outputs</p>
             
             <div class="cli-showcase">
                 <div class="cli-demo">
-                    <div class="cli-tabs">
-                        <button class="cli-tab active" data-demo="apod">APOD</button>
-                        <button class="cli-tab" data-demo="mars">Mars Rover</button>
-                        <button class="cli-tab" data-demo="neo">Asteroids</button>
-                        <button class="cli-tab" data-demo="exoplanets">Exoplanets</button>
-                        <button class="cli-tab" data-demo="epic">EPIC</button>
+                    <div class="cli-tabs-grid">
+                        <button class="cli-tab active" data-demo="apod">APOD Today</button>
+                        <button class="cli-tab" data-demo="apod-range">APOD Range</button>
+                        <button class="cli-tab" data-demo="mars">Mars Photos</button>
+                        <button class="cli-tab" data-demo="mars-batch">Mars Batch</button>
+                        <button class="cli-tab" data-demo="neo">Asteroids Feed</button>
+                        <button class="cli-tab" data-demo="neo-summary">Weekly Summary</button>
+                        <button class="cli-tab" data-demo="epic">EPIC Images</button>
+                        <button class="cli-tab" data-demo="epic-bulk">EPIC Bulk</button>
+                        <button class="cli-tab" data-demo="media">Media Search</button>
+                        <button class="cli-tab" data-demo="media-collection">Media Collection</button>
                         <button class="cli-tab" data-demo="donki">Space Weather</button>
+                        <button class="cli-tab" data-demo="exoplanets">Exoplanets</button>
                         <button class="cli-tab" data-demo="earth">Earth Imagery</button>
                         <button class="cli-tab" data-demo="tech">Tech Transfer</button>
-                        <button class="cli-tab" data-demo="media">Media Library</button>
-                        <button class="cli-tab" data-demo="ssd">Solar System</button>
                         <button class="cli-tab" data-demo="interactive">Interactive</button>
-                        <button class="cli-tab" data-demo="export">Export</button>
+                        <button class="cli-tab" data-demo="export">JSON Export</button>
                     </div>
                     
                     <div class="cli-output active" id="demo-apod">
@@ -177,6 +181,25 @@ X-rays (blue-white), optical (purple), and infrared (pink)...
 <span class="cli-info">Copyright:</span> NASA, ESA, J. Hester (ASU)
 <span class="cli-info">HD URL:</span> https://apod.nasa.gov/apod/image/2401/crab_nebula_4k.jpg
 <span class="cli-info">Media Type:</span> image</pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-apod-range">
+                        <div class="cli-command">$ nasa-cli apod range 2025-01-01 2025-01-03</div>
+                        <pre class="cli-result"><span class="cli-header">🌌 APOD Date Range</span>
+
+<span class="cli-photo">2025-01-01: <span class="cli-name">Alpha Centauri: The Closest Star System</span></span>
+  <span class="cli-info">URL:</span> https://apod.nasa.gov/apod/image/2501/AlphaCen_Cantrell_960.jpg
+  <span class="cli-info">Copyright:</span> Telescope Live, Heaven's Mirror Observatory
+
+<span class="cli-photo">2025-01-02: <span class="cli-name">Solar Analemma 2024</span></span>
+  <span class="cli-info">URL:</span> https://apod.nasa.gov/apod/image/2501/solaranalemma2024-4-5BetulT1024.jpeg
+  <span class="cli-info">Copyright:</span> Betul Turksoy
+
+<span class="cli-photo">2025-01-03: <span class="cli-name">Eclipse Pair</span></span>
+  <span class="cli-info">URL:</span> https://apod.nasa.gov/apod/image/2501/APODEclipsePair1024.jpg
+  <span class="cli-info">Copyright:</span> Josh Dury
+
+<span class="cli-stats">Total images: 3</span></pre>
                     </div>
                     
                     <div class="cli-output" id="demo-mars">
@@ -200,6 +223,25 @@ X-rays (blue-white), optical (purple), and infrared (pink)...
   <span class="cli-info">URL:</span> http://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/fcam/FLB_486265206EDR_F0481570FHAZ00206M_.JPG
 
 <span class="cli-stats">Total photos found: 856</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-mars-batch">
+                        <div class="cli-command">$ nasa-cli mars batch curiosity --sol-start 3000 --sol-end 3001 --limit 5</div>
+                        <pre class="cli-result"><span class="cli-header">🔴 Mars Rover Batch Photos</span>
+
+<span class="cli-section">Sol Range: 3000-3001</span>
+<span class="cli-info">Retrieved 5 photos from 2 sols</span>
+
+<span class="cli-photo">Sol 3000:</span>
+  • FHAZ: 2 photos
+  • RHAZ: 2 photos
+  • MAST: 1 photo
+
+<span class="cli-photo">Sol 3001:</span>
+  • NAVCAM: 8 photos
+  • CHEMCAM: 4 photos
+
+<span class="cli-stats">Total photos: 5 (limited from 17 available)</span></pre>
                     </div>
                     
                     <div class="cli-output" id="demo-neo">
@@ -226,6 +268,27 @@ X-rays (blue-white), optical (purple), and infrared (pink)...
 
 <span class="cli-stats">Total NEOs for period: 8</span>
 <span class="cli-stats">Potentially hazardous: 2</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-neo-summary">
+                        <div class="cli-command">$ nasa-cli asteroids weekly-summary</div>
+                        <pre class="cli-result"><span class="cli-header">☄️  Weekly Close Approach Summary</span>
+
+<span class="cli-section">Week of 2025-07-07 to 2025-07-13</span>
+
+<span class="cli-stats">Total asteroids: 83</span>
+<span class="cli-danger">⚠️  Hazardous asteroids: 5</span>
+
+<span class="cli-section">Closest Approach:</span>
+<span class="cli-asteroid"><span class="cli-name">(2025 MC92)</span></span>
+  <span class="cli-info">Distance:</span> 0.0102 AU (1.52 million km)
+  <span class="cli-info">Date:</span> 2025-07-09
+  <span class="cli-info">Velocity:</span> 12.3 km/s
+
+<span class="cli-section">Size Distribution:</span>
+  • Small (<100m): 64 objects
+  • Medium (100m-1km): 17 objects
+  • Large (>1km): 2 objects</pre>
                     </div>
                     
                     <div class="cli-output" id="demo-exoplanets">
@@ -277,6 +340,26 @@ X-rays (blue-white), optical (purple), and infrared (pink)...
   <span class="cli-info">URL:</span> https://epic.gsfc.nasa.gov/archive/natural/2024/01/10/png/epic_1b_20240110031948.png
 
 <span class="cli-stats">Total images for date: 13</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-epic-bulk">
+                        <div class="cli-command">$ nasa-cli epic bulk natural --start-date 2025-01-01 --end-date 2025-01-02 --limit 2</div>
+                        <pre class="cli-result"><span class="cli-header">🌍 EPIC Bulk Image Retrieval</span>
+
+<span class="cli-section">Date Range: 2025-01-01 to 2025-01-02</span>
+<span class="cli-info">Type: Natural Color</span>
+<span class="cli-info">Limit per day: 2 images</span>
+
+<span class="cli-date">2025-01-01:</span>
+  • 00:13:03 UTC - epic_1b_20250101001751
+  • 02:01:05 UTC - epic_1b_20250101020554
+
+<span class="cli-date">2025-01-02:</span>
+  • 00:03:42 UTC - epic_1b_20250102000830
+  • 01:51:44 UTC - epic_1b_20250102015633
+
+<span class="cli-stats">Total images retrieved: 4</span>
+<span class="cli-success">✓ Bulk retrieval complete</span></pre>
                     </div>
                     
                     <div class="cli-output" id="demo-donki">
@@ -389,6 +472,29 @@ X-rays (blue-white), optical (purple), and infrared (pink)...
    <span class="cli-info">URL:</span> https://images-assets.nasa.gov/image/NHQ202203160007/NHQ202203160007~orig.jpg
 
 <span class="cli-stats">Total results: 847</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-media-collection">
+                        <div class="cli-command">$ nasa-cli media collection apollo11 --all-pages --limit 100</div>
+                        <pre class="cli-result"><span class="cli-header">📸 Media Collection Search</span>
+
+<span class="cli-search">Query: "apollo11"</span>
+<span class="cli-info">Retrieving all pages...</span>
+
+<span class="cli-section">Collection Summary:</span>
+  • Total items: 100
+  • Media types: Image (87), Video (11), Audio (2)
+  • Date range: 1969-2019
+  
+<span class="cli-section">Popular Items:</span>
+1. <span class="cli-name">Apollo 11 Launch</span> - 1969-07-16
+2. <span class="cli-name">First Moon Landing</span> - 1969-07-20
+3. <span class="cli-name">Neil Armstrong Portrait</span> - 1969-07-01
+4. <span class="cli-name">Lunar Module on Moon</span> - 1969-07-20
+5. <span class="cli-name">Mission Control Celebration</span> - 1969-07-24
+
+<span class="cli-success">✓ Collection retrieved successfully</span>
+<span class="cli-stats">Pages processed: 5</span></pre>
                     </div>
                     
                     <div class="cli-output" id="demo-ssd">
@@ -523,7 +629,10 @@ Use arrow keys to navigate, Enter to select, and 'q' to quit.
                     
                     // Add active class to clicked tab and corresponding output
                     this.classList.add('active');
-                    document.getElementById('demo-' + demoId).classList.add('active');
+                    const outputElement = document.getElementById('demo-' + demoId);
+                    if (outputElement) {
+                        outputElement.classList.add('active');
+                    }
                 });
             });
         });
