@@ -1,5 +1,11 @@
 # NASA-RS 🚀
 
+[![CI/CD](https://github.com/marcusziade/nasa-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/marcusziade/nasa-rs/actions/workflows/ci.yml)
+[![GitHub Pages](https://github.com/marcusziade/nasa-rs/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/marcusziade/nasa-rs/actions/workflows/deploy-pages.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=flat&logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange)](https://workers.cloudflare.com/)
+
 A production-ready Rust Cloudflare Worker and CLI for accessing NASA's public APIs. This project provides a unified interface to all NASA APIs with built-in caching, rate limiting, and a beautiful command-line interface.
 
 ## Features
