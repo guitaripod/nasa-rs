@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nasa-rs - Rust-based NASA API Client</title>
+    <meta name="description" content="A blazing-fast Rust-based NASA API proxy for Cloudflare Workers and feature-rich CLI">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon.svg">
+    <meta name="theme-color" content="#0B3D91">
+    
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="#" class="logo">
+                    <span class="logo-icon">🚀</span>
+                    <span class="logo-text">nasa-rs</span>
+                </a>
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#quickstart">Quick Start</a>
+                    <a href="#examples">Examples</a>
+                    <a href="https://github.com/marcusziade/nasa-rs" class="github-link">
+                        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">nasa-rs</span>
+                </h1>
+                <p class="hero-subtitle">
+                    A blazing-fast Rust SDK and CLI for NASA APIs
+                </p>
+                <p class="hero-description">
+                    Access NASA's treasure trove of space data with full API coverage. 
+                    Built with Rust for optimal performance and deployed on Cloudflare's edge network.
+                </p>
+                <div class="hero-actions">
+                    <a href="#quickstart" class="btn btn-primary">Get Started</a>
+                    <a href="https://github.com/marcusziade/nasa-rs" class="btn btn-secondary">View on GitHub</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-value">11+</span>
+                        <span class="stat-label">NASA APIs</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">50+</span>
+                        <span class="stat-label">Commands</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value">100%</span>
+                        <span class="stat-label">Rust</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🌌</div>
+                    <h3>Complete NASA Coverage</h3>
+                    <p>Access all NASA public APIs including APOD, Mars Rover Photos, Exoplanets, NEO, and more</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>High Performance</h3>
+                    <p>Built with Rust for optimal speed and efficiency, deployed on Cloudflare's global edge network</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3>Smart Caching</h3>
+                    <p>KV-based caching with intelligent TTL management for faster responses and reduced API calls</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Rate Limiting</h3>
+                    <p>Built-in protection against API abuse with configurable limits per IP address</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Multiple Formats</h3>
+                    <p>Export data as JSON, tables, pretty-print, CSV, or compact format for easy integration</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Interactive CLI</h3>
+                    <p>Beautiful command-line interface with colored output, progress bars, and interactive menus</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="quickstart" class="quickstart">
+        <div class="container">
+            <h2 class="section-title">Quick Start</h2>
+            <div class="quickstart-grid">
+                <div class="quickstart-card">
+                    <h3>Install CLI</h3>
+                    <pre><code># Install from source
+cargo install --path . --features cli
+
+# Or download pre-built binary
+curl -L https://github.com/marcusziade/nasa-rs/releases/latest/download/nasa-cli-$(uname -s)-$(uname -m) -o nasa-cli
+chmod +x nasa-cli</code></pre>
+                </div>
+                <div class="quickstart-card">
+                    <h3>Configure & Run</h3>
+                    <pre><code># Set your NASA API key
+nasa-cli config set-key YOUR_API_KEY
+
+# Get today's APOD
+nasa-cli apod today</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="examples" class="examples">
+        <div class="container">
+            <h2 class="section-title">Interactive Examples</h2>
+            <p class="section-subtitle">Explore the CLI capabilities with real command outputs</p>
+            
+            <div class="cli-showcase">
+                <div class="cli-demo">
+                    <div class="cli-tabs">
+                        <button class="cli-tab active" data-demo="apod">APOD</button>
+                        <button class="cli-tab" data-demo="mars">Mars Rover</button>
+                        <button class="cli-tab" data-demo="neo">Asteroids</button>
+                        <button class="cli-tab" data-demo="exoplanets">Exoplanets</button>
+                        <button class="cli-tab" data-demo="epic">EPIC</button>
+                        <button class="cli-tab" data-demo="donki">Space Weather</button>
+                        <button class="cli-tab" data-demo="earth">Earth Imagery</button>
+                        <button class="cli-tab" data-demo="tech">Tech Transfer</button>
+                        <button class="cli-tab" data-demo="media">Media Library</button>
+                        <button class="cli-tab" data-demo="ssd">Solar System</button>
+                        <button class="cli-tab" data-demo="interactive">Interactive</button>
+                        <button class="cli-tab" data-demo="export">Export</button>
+                    </div>
+                    
+                    <div class="cli-output active" id="demo-apod">
+                        <div class="cli-command">$ nasa-cli apod today</div>
+                        <pre class="cli-result"><span class="cli-header">🌌 Astronomy Picture of the Day</span>
+
+<span class="cli-title">The Crab Nebula in Infrared</span>
+<span class="cli-date">Date: 2024-01-15</span>
+
+<span class="cli-section">Explanation:</span>
+The Crab Nebula is cataloged as M1, the first object on Charles Messier's 
+famous list of things which are not comets. In fact, the Crab is now known 
+to be a supernova remnant, expanding debris from the death explosion of a 
+massive star. This intriguing false-color image combines data from space-based 
+observatories Chandra, Hubble, and Spitzer to explore the debris cloud in 
+X-rays (blue-white), optical (purple), and infrared (pink)...
+
+<span class="cli-info">Copyright:</span> NASA, ESA, J. Hester (ASU)
+<span class="cli-info">HD URL:</span> https://apod.nasa.gov/apod/image/2401/crab_nebula_4k.jpg
+<span class="cli-info">Media Type:</span> image</pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-mars">
+                        <div class="cli-command">$ nasa-cli mars photos --rover curiosity --sol 1000 --camera FHAZ --limit 3</div>
+                        <pre class="cli-result"><span class="cli-header">🔴 Mars Rover Photos</span>
+<span class="cli-info">Rover: Curiosity • Sol: 1000 • Camera: Front Hazard Avoidance Camera</span>
+
+<span class="cli-photo">Photo 1:</span>
+  <span class="cli-info">ID:</span> 102693
+  <span class="cli-info">Earth Date:</span> 2015-05-30
+  <span class="cli-info">URL:</span> http://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/fcam/FLB_486265257EDR_F0481570FHAZ00323M_.JPG
+
+<span class="cli-photo">Photo 2:</span>
+  <span class="cli-info">ID:</span> 102694
+  <span class="cli-info">Earth Date:</span> 2015-05-30
+  <span class="cli-info">URL:</span> http://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/fcam/FRB_486265257EDR_F0481570FHAZ00323M_.JPG
+
+<span class="cli-photo">Photo 3:</span>
+  <span class="cli-info">ID:</span> 102850
+  <span class="cli-info">Earth Date:</span> 2015-05-30
+  <span class="cli-info">URL:</span> http://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/fcam/FLB_486265206EDR_F0481570FHAZ00206M_.JPG
+
+<span class="cli-stats">Total photos found: 856</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-neo">
+                        <div class="cli-command">$ nasa-cli asteroids feed --start-date 2024-01-15 --end-date 2024-01-16</div>
+                        <pre class="cli-result"><span class="cli-header">☄️  Near Earth Objects Feed</span>
+
+<span class="cli-date">2024-01-15:</span>
+
+<span class="cli-asteroid">1. <span class="cli-name">(2021 BL3)</span></span>
+   <span class="cli-info">Diameter:</span> 92.0 - 206.0 meters
+   <span class="cli-info">Velocity:</span> 47,023 km/h
+   <span class="cli-info">Miss Distance:</span> 0.0321 AU (4,801,829 km)
+   <span class="cli-danger">⚠️  Potentially Hazardous</span>
+
+<span class="cli-asteroid">2. <span class="cli-name">(2019 AE9)</span></span>
+   <span class="cli-info">Diameter:</span> 13.1 - 29.3 meters
+   <span class="cli-info">Velocity:</span> 28,944 km/h
+   <span class="cli-info">Miss Distance:</span> 0.1842 AU (27,554,311 km)
+
+<span class="cli-asteroid">3. <span class="cli-name">(2024 AB)</span></span>
+   <span class="cli-info">Diameter:</span> 46.2 - 103.3 meters
+   <span class="cli-info">Velocity:</span> 35,284 km/h
+   <span class="cli-info">Miss Distance:</span> 0.0912 AU (13,642,955 km)
+
+<span class="cli-stats">Total NEOs for period: 8</span>
+<span class="cli-stats">Potentially hazardous: 2</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-exoplanets">
+                        <div class="cli-command">$ nasa-cli exoplanets search --min-mass 0.5 --max-mass 2.0 --limit 5</div>
+                        <pre class="cli-result"><span class="cli-header">🪐 Exoplanet Search Results</span>
+
+<span class="cli-planet">1. <span class="cli-name">Kepler-452 b</span></span>
+   <span class="cli-info">Discovery Year:</span> 2015
+   <span class="cli-info">Mass:</span> 1.63 Earth masses
+   <span class="cli-info">Orbital Period:</span> 384.84 days
+   <span class="cli-info">Host Star:</span> Kepler-452
+   <span class="cli-info">Distance:</span> 1402 light-years
+   <span class="cli-habitable">🌍 In Habitable Zone</span>
+
+<span class="cli-planet">2. <span class="cli-name">Proxima Cen b</span></span>
+   <span class="cli-info">Discovery Year:</span> 2016
+   <span class="cli-info">Mass:</span> 1.27 Earth masses
+   <span class="cli-info">Orbital Period:</span> 11.19 days
+   <span class="cli-info">Host Star:</span> Proxima Centauri
+   <span class="cli-info">Distance:</span> 4.24 light-years
+
+<span class="cli-planet">3. <span class="cli-name">TRAPPIST-1 e</span></span>
+   <span class="cli-info">Discovery Year:</span> 2017
+   <span class="cli-info">Mass:</span> 0.62 Earth masses
+   <span class="cli-info">Orbital Period:</span> 6.10 days
+   <span class="cli-info">Host Star:</span> TRAPPIST-1
+   <span class="cli-info">Distance:</span> 39.46 light-years
+   <span class="cli-habitable">🌍 In Habitable Zone</span>
+
+<span class="cli-stats">Total matching exoplanets: 127</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-epic">
+                        <div class="cli-command">$ nasa-cli epic images --date 2024-01-10 --type natural</div>
+                        <pre class="cli-result"><span class="cli-header">🌍 EPIC Earth Images</span>
+<span class="cli-date">Date: 2024-01-10</span>
+
+<span class="cli-image">Image 1:</span>
+  <span class="cli-info">Time:</span> 00:31:36 UTC
+  <span class="cli-info">Identifier:</span> 20240110003136
+  <span class="cli-info">Centroid:</span> Lat: -23.4°, Lon: 157.8°
+  <span class="cli-info">Sun Position:</span> x: -0.924, y: 0.001, z: -0.382
+  <span class="cli-info">URL:</span> https://epic.gsfc.nasa.gov/archive/natural/2024/01/10/png/epic_1b_20240110003136.png
+
+<span class="cli-image">Image 2:</span>
+  <span class="cli-info">Time:</span> 03:19:48 UTC
+  <span class="cli-info">Identifier:</span> 20240110031948
+  <span class="cli-info">Centroid:</span> Lat: -23.4°, Lon: 115.5°
+  <span class="cli-info">URL:</span> https://epic.gsfc.nasa.gov/archive/natural/2024/01/10/png/epic_1b_20240110031948.png
+
+<span class="cli-stats">Total images for date: 13</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-donki">
+                        <div class="cli-command">$ nasa-cli donki solar-flares --start-date 2024-01-01 --end-date 2024-01-15</div>
+                        <pre class="cli-result"><span class="cli-header">☀️  Solar Flare Activity</span>
+
+<span class="cli-flare">2024-01-05 14:55:00 UTC</span>
+  <span class="cli-info">Class:</span> <span class="cli-danger">X1.2</span>
+  <span class="cli-info">Source:</span> Active Region 3536
+  <span class="cli-info">Peak Time:</span> 15:12:00 UTC
+  <span class="cli-info">End Time:</span> 15:28:00 UTC
+  <span class="cli-info">Location:</span> N23E45
+
+<span class="cli-flare">2024-01-09 02:32:00 UTC</span>
+  <span class="cli-info">Class:</span> <span class="cli-warning">M5.8</span>
+  <span class="cli-info">Source:</span> Active Region 3538
+  <span class="cli-info">Peak Time:</span> 02:47:00 UTC
+  <span class="cli-info">End Time:</span> 03:15:00 UTC
+  <span class="cli-info">Location:</span> S15W23
+
+<span class="cli-flare">2024-01-14 09:18:00 UTC</span>
+  <span class="cli-info">Class:</span> <span class="cli-warning">M3.2</span>
+  <span class="cli-info">Source:</span> Active Region 3541
+  <span class="cli-info">Peak Time:</span> 09:32:00 UTC
+  <span class="cli-info">End Time:</span> 09:48:00 UTC
+
+<span class="cli-stats">Total solar flares: 8</span>
+<span class="cli-stats">X-class: 1, M-class: 4, C-class: 3</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-earth">
+                        <div class="cli-command">$ nasa-cli earth imagery --lat 37.7749 --lon -122.4194 --date 2023-07-01 --dim 0.5</div>
+                        <pre class="cli-result"><span class="cli-header">🌎 Earth Imagery</span>
+
+<span class="cli-location">Location: San Francisco, CA</span>
+<span class="cli-info">Coordinates:</span> 37.7749°N, 122.4194°W
+<span class="cli-info">Date:</span> 2023-07-01
+<span class="cli-info">Dimension:</span> 0.5° × 0.5°
+
+<span class="cli-section">Image Details:</span>
+<span class="cli-info">Acquisition Date:</span> 2023-06-28 (closest available)
+<span class="cli-info">Cloud Score:</span> 0.02 (2% cloud cover)
+<span class="cli-info">Satellite:</span> Landsat 8
+<span class="cli-info">Processing Level:</span> L1T
+
+<span class="cli-info">URL:</span> https://earthengine.googleapis.com/v1alpha/projects/earthengine-legacy/thumbnails/5e4c7e8f9b5c3d1a8e9f2a3b
+
+<span class="cli-success">✓ Image retrieved successfully</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-tech">
+                        <div class="cli-command">$ nasa-cli tech search "carbon capture" --limit 3</div>
+                        <pre class="cli-result"><span class="cli-header">🔬 NASA Technology Transfer</span>
+<span class="cli-search">Search: "carbon capture"</span>
+
+<span class="cli-tech">1. <span class="cli-name">Advanced Carbon Dioxide Removal System</span></span>
+   <span class="cli-info">Patent #:</span> US9,878,276
+   <span class="cli-info">Center:</span> Ames Research Center
+   <span class="cli-info">Category:</span> Environment
+   <span class="cli-info">Description:</span> A regenerative system for removing CO2 from spacecraft
+   cabin air that can be adapted for terrestrial carbon capture applications.
+   <span class="cli-info">TRL:</span> 6
+
+<span class="cli-tech">2. <span class="cli-name">Solid Oxide Electrolysis Cell for CO2 Reduction</span></span>
+   <span class="cli-info">Patent #:</span> US10,301,729
+   <span class="cli-info">Center:</span> Glenn Research Center
+   <span class="cli-info">Category:</span> Energy
+   <span class="cli-info">Description:</span> High-temperature electrolysis technology for converting
+   carbon dioxide into oxygen and carbon monoxide.
+   <span class="cli-info">TRL:</span> 4
+
+<span class="cli-tech">3. <span class="cli-name">Bio-inspired Carbon Sequestration Material</span></span>
+   <span class="cli-info">Software ID:</span> ARC-18429-1
+   <span class="cli-info">Center:</span> Langley Research Center
+   <span class="cli-info">Category:</span> Materials
+   <span class="cli-info">Description:</span> Novel material inspired by marine organisms for
+   efficient atmospheric CO2 absorption and mineralization.
+   <span class="cli-info">TRL:</span> 3
+
+<span class="cli-stats">Total matching technologies: 12</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-media">
+                        <div class="cli-command">$ nasa-cli media search "james webb" --media-type image --limit 3</div>
+                        <pre class="cli-result"><span class="cli-header">📸 NASA Media Library</span>
+<span class="cli-search">Search: "james webb"</span>
+
+<span class="cli-media">1. <span class="cli-name">Webb's First Deep Field</span></span>
+   <span class="cli-info">NASA ID:</span> PIA25453
+   <span class="cli-info">Date:</span> 2022-07-11
+   <span class="cli-info">Keywords:</span> JWST, Galaxy Cluster, SMACS 0723, Deep Field
+   <span class="cli-info">Description:</span> The deepest and sharpest infrared image of the
+   distant universe to date, showing galaxy cluster SMACS 0723.
+   <span class="cli-info">URL:</span> https://images-assets.nasa.gov/image/PIA25453/PIA25453~orig.jpg
+
+<span class="cli-media">2. <span class="cli-name">Cosmic Cliffs in Carina Nebula</span></span>
+   <span class="cli-info">NASA ID:</span> PIA25454
+   <span class="cli-info">Date:</span> 2022-07-12
+   <span class="cli-info">Keywords:</span> JWST, Carina Nebula, Star Formation, NGC 3324
+   <span class="cli-info">Description:</span> "Cosmic Cliffs" in the Carina Nebula showcase
+   Webb's ability to peer through cosmic dust.
+   <span class="cli-info">URL:</span> https://images-assets.nasa.gov/image/PIA25454/PIA25454~orig.jpg
+
+<span class="cli-media">3. <span class="cli-name">Webb Telescope Mirror Seen in Full Bloom</span></span>
+   <span class="cli-info">NASA ID:</span> NHQ202203160007
+   <span class="cli-info">Date:</span> 2022-03-16
+   <span class="cli-info">Keywords:</span> JWST, Mirror, Alignment, Engineering
+   <span class="cli-info">Description:</span> The 18 primary mirror segments working together
+   as a single, precise optical surface.
+   <span class="cli-info">URL:</span> https://images-assets.nasa.gov/image/NHQ202203160007/NHQ202203160007~orig.jpg
+
+<span class="cli-stats">Total results: 847</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-ssd">
+                        <div class="cli-command">$ nasa-cli ssd close-approaches --date-min 2024-01-15 --date-max 2024-01-20 --dist-max 0.05</div>
+                        <pre class="cli-result"><span class="cli-header">🌌 Close Approach Data</span>
+<span class="cli-info">Period: 2024-01-15 to 2024-01-20</span>
+<span class="cli-info">Max Distance: 0.05 AU</span>
+
+<span class="cli-approach">2024-01-16 08:32 ±00:01</span>
+  <span class="cli-info">Object:</span> (2021 BL3)
+  <span class="cli-info">Distance:</span> 0.0321 AU (4.80 million km)
+  <span class="cli-info">Velocity:</span> 13.06 km/s
+  <span class="cli-info">Diameter:</span> ~149 m
+  <span class="cli-info">H magnitude:</span> 22.1
+
+<span class="cli-approach">2024-01-18 14:27 ±00:01</span>
+  <span class="cli-info">Object:</span> (2024 AB)
+  <span class="cli-info">Distance:</span> 0.0486 AU (7.27 million km)
+  <span class="cli-info">Velocity:</span> 9.80 km/s
+  <span class="cli-info">Diameter:</span> ~75 m
+  <span class="cli-info">H magnitude:</span> 23.8
+
+<span class="cli-approach">2024-01-19 22:15 ±00:02</span>
+  <span class="cli-info">Object:</span> (2019 YK)
+  <span class="cli-info">Distance:</span> 0.0413 AU (6.18 million km)
+  <span class="cli-info">Velocity:</span> 15.23 km/s
+  <span class="cli-info">Diameter:</span> ~210 m
+  <span class="cli-info">H magnitude:</span> 21.5
+
+<span class="cli-stats">Total close approaches: 3</span>
+<span class="cli-warning">⚠️  1 potentially hazardous object</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-interactive">
+                        <div class="cli-command">$ nasa-cli interactive</div>
+                        <pre class="cli-result"><span class="cli-header">🚀 NASA CLI Interactive Mode</span>
+
+Welcome to the NASA CLI interactive interface!
+Use arrow keys to navigate, Enter to select, and 'q' to quit.
+
+<span class="cli-menu">Main Menu:</span>
+<span class="cli-selected">▶ Astronomy Picture of the Day (APOD)</span>
+  Mars Rover Photos
+  Near Earth Objects
+  Exoplanet Archive
+  EPIC Earth Images
+  Space Weather (DONKI)
+  Earth Imagery
+  Technology Transfer
+  Media Library
+  Solar System Dynamics
+  Configuration
+  Help
+
+<span class="cli-prompt">Select an option to continue...</span></pre>
+                    </div>
+                    
+                    <div class="cli-output" id="demo-export">
+                        <div class="cli-command">$ nasa-cli mars photos --rover perseverance --sol 500 -o json | jq '.photos[0]'</div>
+                        <pre class="cli-result">{
+  "id": 1045892,
+  "sol": 500,
+  "camera": {
+    "id": 245,
+    "name": "NAVCAM_LEFT",
+    "rover_id": 8,
+    "full_name": "Navigation Camera - Left"
+  },
+  "img_src": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/00500/ids/edr/browse/ncam/NLG_0500_0710891234_234ECM_N0260000NCAM00512_00_2I4J01_1200.jpg",
+  "earth_date": "2023-07-11",
+  "rover": {
+    "id": 8,
+    "name": "Perseverance",
+    "landing_date": "2021-02-18",
+    "launch_date": "2020-07-30",
+    "status": "active",
+    "max_sol": 1035,
+    "max_date": "2024-01-15",
+    "total_photos": 187439
+  }
+}</pre>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to explore the cosmos?</h2>
+                <p>Get started with nasa-rs today and unlock access to NASA's vast collection of space data.</p>
+                <div class="cta-actions">
+                    <a href="https://github.com/marcusziade/nasa-rs" class="btn btn-primary">Get Started on GitHub</a>
+                    <a href="https://github.com/marcusziade/nasa-rs/blob/master/docs/MANUAL.md" class="btn btn-secondary">Read the Docs</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <p>Built with Rust and Cloudflare Workers</p>
+                    <p class="footer-links">
+                        <a href="https://github.com/marcusziade">Marcus Ziadé</a> · 
+                        <a href="https://github.com/marcusziade/nasa-rs/blob/master/LICENSE">MIT License</a>
+                    </p>
+                </div>
+                <div class="footer-right">
+                    <a href="https://github.com/marcusziade/nasa-rs/blob/master/docs/MANUAL.md">User Manual</a>
+                    <a href="https://github.com/marcusziade/nasa-rs/blob/master/docs/TESTING.md">Testing Guide</a>
+                    <a href="https://github.com/marcusziade/nasa-rs/issues">Issues</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // CLI tab switching
+        document.addEventListener('DOMContentLoaded', function() {
+            const cliTabs = document.querySelectorAll('.cli-tab');
+            cliTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const demoId = this.getAttribute('data-demo');
+                    
+                    // Remove active class from all tabs and outputs
+                    document.querySelectorAll('.cli-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.cli-output').forEach(o => o.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding output
+                    this.classList.add('active');
+                    document.getElementById('demo-' + demoId).classList.add('active');
+                });
+            });
+        });
+
+        // Theme detection
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        function updateTheme() {
+            document.body.classList.toggle('dark-theme', prefersDark.matches);
+        }
+        prefersDark.addListener(updateTheme);
+        updateTheme();
+    </script>
+</body>
+</html>
