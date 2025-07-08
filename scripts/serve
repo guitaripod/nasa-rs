@@ -36,7 +36,7 @@ def cleanup(signum, frame):
 signal.signal(signal.SIGINT, cleanup)
 
 # Change to docs directory
-docs_dir = Path(__file__).parent / 'docs'
+docs_dir = Path(__file__).parent.parent / 'docs'
 os.chdir(docs_dir)
 
 # Try to start server
