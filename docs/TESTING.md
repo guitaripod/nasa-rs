@@ -65,13 +65,13 @@ wrangler dev
 Test individual endpoints:
 ```bash
 # APOD
-curl "http://localhost:8787/api/apod?api_key=DEMO_KEY"
+curl "http://localhost:8787/api/apod"
 
 # NEO Feed
-curl "http://localhost:8787/api/neo/feed?api_key=DEMO_KEY"
+curl "http://localhost:8787/api/neo/feed"
 
 # Mars Photos
-curl "http://localhost:8787/api/mars-photos/curiosity/photos?sol=1000&api_key=DEMO_KEY"
+curl "http://localhost:8787/api/mars-photos/curiosity/photos?sol=1000"
 ```
 
 #### CLI Manual Testing
@@ -90,7 +90,7 @@ cargo build --features cli
 
 ### 1. Test Data Management
 
-- Use `DEMO_KEY` for testing to avoid rate limits on personal keys
+- The Cloudflare Worker handles API keys automatically
 - Cache test responses to minimize API calls
 - Use date ranges that are known to have data
 
@@ -113,11 +113,11 @@ export NASA_CLI_NO_CACHE=true
 Test response times:
 ```bash
 # Time a request
-time curl "http://localhost:8787/api/apod?api_key=DEMO_KEY"
+time curl "http://localhost:8787/api/apod"
 
 # Load test with multiple requests
 for i in {1..10}; do
-  curl -s "http://localhost:8787/api/apod?api_key=DEMO_KEY" > /dev/null &
+  curl -s "http://localhost:8787/api/apod" > /dev/null &
 done
 wait
 ```
@@ -181,7 +181,7 @@ cargo test test_apod_response -- --exact --nocapture
 ### Common Issues
 
 1. **Rate Limit Errors**
-   - Solution: Use DEMO_KEY or wait between tests
+   - Solution: Wait between tests
    - Enable caching to reduce API calls
 
 2. **Network Timeouts**

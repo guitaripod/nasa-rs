@@ -301,7 +301,6 @@ Configuration file location: `~/.config/nasa-cli/config.toml`
 
 ```toml
 api_endpoint = "https://nasa-api.workers.dev"
-api_key = "your_api_key_here"  # Optional, uses demo key by default
 output_format = "pretty"  # json, table, pretty, csv
 use_cache = true
 cache_dir = "~/.config/nasa-cli/cache"
@@ -471,7 +470,7 @@ nasa donki notifications -o json
 ```
 Error: API error 429: Rate limit exceeded
 ```
-Solution: Wait a few minutes or use a registered API key instead of DEMO_KEY.
+Solution: Wait a few minutes before retrying. The API rate limit is enforced by the Cloudflare Worker.
 
 **Cache Permission Errors**
 ```
