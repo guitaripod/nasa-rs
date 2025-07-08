@@ -27,6 +27,9 @@ id = "3e91cbfaa6fe405e9d4aeae78f47e4ff"
 binding = "RATE_LIMIT"
 id = "ce2a522e723542cda892659f3e3a5b67"
 
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
 [env.development]
 vars = { ENVIRONMENT = "development" }
 
