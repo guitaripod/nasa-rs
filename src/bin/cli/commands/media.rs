@@ -36,7 +36,7 @@ pub async fn execute(
         Some(("asset", sub_matches)) => {
             let nasa_id = sub_matches.get_one::<String>("nasa-id").unwrap();
             let params = HashMap::new();
-            let data = client.get(&format!("/api/media/asset/{}", nasa_id), params).await?;
+            let data = client.get(&format!("/api/media/asset/{nasa_id}"), params).await?;
             Ok(Some(data))
         }
         _ => {

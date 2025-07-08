@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use colored::Colorize;
 use prettytable::{Table, row, cell};
-use std::fmt;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum OutputFormat {
@@ -21,7 +20,7 @@ impl std::str::FromStr for OutputFormat {
             "table" => Ok(OutputFormat::Table),
             "pretty" => Ok(OutputFormat::Pretty),
             "csv" => Ok(OutputFormat::Csv),
-            _ => Err(format!("Unknown output format: {}", s)),
+            _ => Err(format!("Unknown output format: {s}")),
         }
     }
 }
@@ -64,11 +63,11 @@ impl Formatter for PrettyFormatter {
                 }
                 
                 if let Some(date) = map.get("date").and_then(|v| v.as_str()) {
-                    output.push_str(&format!("{}: {}\n", "Date".green(), date));
+                    output.push_str(&format!("{}: {date}\n", "Date".green()));
                 }
                 
                 if let Some(explanation) = map.get("explanation").and_then(|v| v.as_str()) {
-                    output.push_str(&format!("\n{}\n", explanation));
+                    output.push_str(&format!("\n{explanation}\n"));
                 }
                 
                 if let Some(url) = map.get("url").and_then(|v| v.as_str()) {
@@ -82,7 +81,8 @@ impl Formatter for PrettyFormatter {
                 // Generic pretty printing for other fields
                 for (key, value) in map {
                     if !["title", "date", "explanation", "url", "hdurl"].contains(&key.as_str()) {
-                        output.push_str(&format!("{}: {}\n", key.green(), format_value(value)));
+                        let formatted_value = format_value(value);
+                        output.push_str(&format!("{}: {formatted_value}\n", key.green()));
                     }
                 }
                 
@@ -90,15 +90,17 @@ impl Formatter for PrettyFormatter {
             }
             Value::Array(arr) => {
                 let mut output = String::new();
-                output.push_str(&format!("{}\n", format!("Found {} items", arr.len()).bold()));
+                let len = arr.len();
+                output.push_str(&format!("{}\n", format!("Found {len} items").bold()));
                 output.push_str(&"─".repeat(40));
                 output.push('\n');
                 
                 for (i, item) in arr.iter().enumerate() {
-                    output.push_str(&format!("\n{} {}\n", "►".cyan(), format!("Item {}", i + 1).bold()));
+                    let item_num = i + 1;
+                    output.push_str(&format!("\n{} {}\n", "►".cyan(), format!("Item {item_num}").bold()));
                     output.push_str(&PrettyFormatter.format(item)?);
                     if i < arr.len() - 1 {
-                        output.push_str("\n");
+                        output.push('\n');
                     }
                 }
                 
@@ -133,7 +135,7 @@ impl Formatter for TableFormatter {
                     
                     Ok(table.to_string())
                 } else {
-                    Ok(format!("{:?}", arr))
+                    Ok(format!("{arr:?}"))
                 }
             }
             Value::Object(obj) => {
@@ -197,7 +199,8 @@ fn format_table_value(value: &Value) -> String {
     match value {
         Value::String(s) => {
             if s.len() > 50 {
-                format!("{}...", &s[..47])
+                let truncated = &s[..47];
+                format!("{truncated}...")
             } else {
                 s.clone()
             }
@@ -208,7 +211,8 @@ fn format_table_value(value: &Value) -> String {
 
 fn csv_escape(s: String) -> String {
     if s.contains(',') || s.contains('"') || s.contains('\n') {
-        format!("\"{}\"", s.replace('"', "\"\""))
+        let escaped = s.replace('"', "\"\"");
+        format!("\"{escaped}\"")
     } else {
         s
     }

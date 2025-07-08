@@ -12,11 +12,10 @@ mod ssd;
 mod tech;
 
 use clap::ArgMatches;
-use colored::Colorize;
 use crate::cli::{
     config::{Config, ConfigManager},
     api::ApiClient,
-    output::{OutputFormat, create_formatter},
+    output::create_formatter,
 };
 
 pub struct CommandContext {
@@ -58,7 +57,7 @@ pub async fn execute_command(
         "ssd" => ssd::execute(matches, &client).await,
         "config" => config::execute(matches, context).await,
         "cache" => cache::execute(matches, &client).await,
-        _ => Err(format!("Unknown command: {}", command).into()),
+        _ => Err(format!("Unknown command: {command}").into()),
     };
     
     match result {
@@ -66,7 +65,7 @@ pub async fn execute_command(
             // Format and display the output
             let formatter = create_formatter(context.config.output_format);
             let output = formatter.format(&data)?;
-            println!("{}", output);
+            println!("{output}");
         }
         Ok(None) => {
             // Command handled output internally

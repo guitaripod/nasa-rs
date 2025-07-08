@@ -35,7 +35,7 @@ impl ApiClient {
     }
     
     pub async fn get(&self, path: &str, mut params: HashMap<String, String>) -> Result<Value, Box<dyn std::error::Error>> {
-        let url = format!("{}{}", self.base_url, path);
+        let url = format!("{}{path}", self.base_url);
         
         // Add API key if available
         if let Some(api_key) = &self.api_key {
@@ -59,7 +59,7 @@ impl ApiClient {
         if !response.status().is_success() {
             let status = response.status();
             let error_text = response.text().await?;
-            return Err(format!("API error {}: {}", status, error_text).into());
+            return Err(format!("API error {status}: {error_text}").into());
         }
         
         let data: Value = response.json().await?;
@@ -73,7 +73,7 @@ impl ApiClient {
     }
     
     pub async fn get_binary(&self, path: &str, params: HashMap<String, String>) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
-        let url = format!("{}{}", self.base_url, path);
+        let url = format!("{}{path}", self.base_url);
         
         let response = self.client
             .get(&url)
@@ -84,7 +84,7 @@ impl ApiClient {
         if !response.status().is_success() {
             let status = response.status();
             let error_text = response.text().await?;
-            return Err(format!("API error {}: {}", status, error_text).into());
+            return Err(format!("API error {status}: {error_text}").into());
         }
         
         Ok(response.bytes().await?.to_vec())
@@ -92,7 +92,7 @@ impl ApiClient {
     
     async fn get_from_cache(&self, url: &str, params: &HashMap<String, String>) -> Result<Option<Value>, Box<dyn std::error::Error>> {
         let cache_key = self.generate_cache_key(url, params);
-        let cache_path = self.cache_dir.join(format!("{}.json", cache_key));
+        let cache_path = self.cache_dir.join(format!("{cache_key}.json"));
         
         if cache_path.exists() {
             let metadata = fs::metadata(&cache_path).await?;
@@ -115,7 +115,7 @@ impl ApiClient {
         fs::create_dir_all(&self.cache_dir).await?;
         
         let cache_key = self.generate_cache_key(url, params);
-        let cache_path = self.cache_dir.join(format!("{}.json", cache_key));
+        let cache_path = self.cache_dir.join(format!("{cache_key}.json"));
         
         let content = serde_json::to_string_pretty(data)?;
         fs::write(&cache_path, content).await?;
@@ -135,7 +135,8 @@ impl ApiClient {
             hasher.update(value.as_bytes());
         }
         
-        format!("{:x}", hasher.finalize())
+        let hash = hasher.finalize();
+        format!("{hash:x}")
     }
     
     pub async fn clear_cache(&self) -> Result<(), Box<dyn std::error::Error>> {

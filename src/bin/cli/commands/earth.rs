@@ -30,7 +30,7 @@ pub async fn execute(
             let image_data = client.get_binary("/api/earth/imagery", params).await?;
             
             // Save the image
-            let filename = format!("earth_{}_{}.png", lat, lon);
+            let filename = format!("earth_{lat}_{lon}.png");
             fs::write(&filename, image_data)?;
             
             println!("{} Image saved to {}", "✓".green().bold(), filename.cyan());
