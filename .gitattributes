@@ -2,3 +2,4 @@
 *.sh linguist-vendored
 Makefile linguist-vendored
 *.py linguist-vendored
+scripts/serve linguist-vendored
