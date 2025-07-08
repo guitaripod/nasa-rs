@@ -1,5 +1,5 @@
 use worker::{Request, Response, RouteContext};
-use crate::error::{NasaApiError, Result};
+use crate::error::NasaApiError;
 use crate::cache::{CacheManager, get_cache_key};
 use crate::utils;
 use super::make_nasa_request;
@@ -25,11 +25,11 @@ pub async fn get_imagery(req: Request, ctx: RouteContext<HandlerContext>) -> wor
     let lon_f: f64 = lon.parse()
         .map_err(|_| NasaApiError::BadRequest("Invalid longitude format".to_string()))?;
     
-    if lat_f < -90.0 || lat_f > 90.0 {
+    if !(-90.0..=90.0).contains(&lat_f) {
         return Err(NasaApiError::BadRequest("Latitude must be between -90 and 90".to_string()).into());
     }
     
-    if lon_f < -180.0 || lon_f > 180.0 {
+    if !(-180.0..=180.0).contains(&lon_f) {
         return Err(NasaApiError::BadRequest("Longitude must be between -180 and 180".to_string()).into());
     }
     
@@ -45,7 +45,7 @@ pub async fn get_imagery(req: Request, ctx: RouteContext<HandlerContext>) -> wor
             } else {
                 url.push('&');
             }
-            url.push_str(&format!("{}={}", key, value));
+            url.push_str(&format!("{key}={value}"));
         }
     }
     
@@ -80,11 +80,11 @@ pub async fn get_assets(req: Request, ctx: RouteContext<HandlerContext>) -> work
     let lon_f: f64 = lon.parse()
         .map_err(|_| NasaApiError::BadRequest("Invalid longitude format".to_string()))?;
     
-    if lat_f < -90.0 || lat_f > 90.0 {
+    if !(-90.0..=90.0).contains(&lat_f) {
         return Err(NasaApiError::BadRequest("Latitude must be between -90 and 90".to_string()).into());
     }
     
-    if lon_f < -180.0 || lon_f > 180.0 {
+    if !(-180.0..=180.0).contains(&lon_f) {
         return Err(NasaApiError::BadRequest("Longitude must be between -180 and 180".to_string()).into());
     }
     
@@ -110,7 +110,7 @@ pub async fn get_assets(req: Request, ctx: RouteContext<HandlerContext>) -> work
             } else {
                 url.push('&');
             }
-            url.push_str(&format!("{}={}", key, value));
+            url.push_str(&format!("{key}={value}"));
         }
     }
     

@@ -1,5 +1,5 @@
 use worker::{Request, Response, RouteContext};
-use crate::error::{NasaApiError, Result};
+use crate::error::NasaApiError;
 use crate::cache::{CacheManager, get_cache_key, get_ttl_for_endpoint};
 use crate::utils;
 
@@ -44,8 +44,7 @@ pub async fn query_exoplanets(req: Request, ctx: RouteContext<HandlerContext>) -
         let status = response.status();
         let error_text = response.text().await.unwrap_or_default();
         return Err(NasaApiError::NasaApi(format!(
-            "Exoplanet Archive returned {} - {}",
-            status, error_text
+            "Exoplanet Archive returned {status} - {error_text}"
         )).into());
     }
     

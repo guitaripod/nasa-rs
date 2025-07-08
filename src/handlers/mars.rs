@@ -8,7 +8,7 @@ use super::HandlerContext;
 fn validate_rover(rover: &str) -> Result<()> {
     match rover {
         "curiosity" | "opportunity" | "spirit" => Ok(()),
-        _ => Err(NasaApiError::BadRequest(format!("Invalid rover: {}. Must be one of: curiosity, opportunity, spirit", rover)))
+        _ => Err(NasaApiError::BadRequest(format!("Invalid rover: {rover}. Must be one of: curiosity, opportunity, spirit")))
     }
 }
 
@@ -35,7 +35,7 @@ pub async fn get_rover_photos(req: Request, ctx: RouteContext<HandlerContext>) -
     }
     
     // Check cache
-    let cache_key = get_cache_key(&format!("mars-photos/{}/photos", rover), &params);
+    let cache_key = get_cache_key(&format!("mars-photos/{rover}/photos"), &params);
     let cache_manager = CacheManager::new(env)?;
     
     if let Some(cached) = cache_manager.get(&cache_key).await? {
@@ -45,7 +45,7 @@ pub async fn get_rover_photos(req: Request, ctx: RouteContext<HandlerContext>) -
     }
     
     // Build NASA API URL
-    let mut url = format!("https://api.nasa.gov/mars-photos/api/v1/rovers/{}/photos", rover);
+    let mut url = format!("https://api.nasa.gov/mars-photos/api/v1/rovers/{rover}/photos");
     let mut first_param = true;
     
     for (key, value) in &params {
@@ -56,7 +56,7 @@ pub async fn get_rover_photos(req: Request, ctx: RouteContext<HandlerContext>) -
             } else {
                 url.push('&');
             }
-            url.push_str(&format!("{}={}", key, value));
+            url.push_str(&format!("{key}={value}"));
         }
     }
     
@@ -81,7 +81,7 @@ pub async fn get_latest_photos(_req: Request, ctx: RouteContext<HandlerContext>)
     validate_rover(rover)?;
     
     // Check cache
-    let cache_key = format!("mars-photos/{}/latest", rover);
+    let cache_key = format!("mars-photos/{rover}/latest");
     let cache_manager = CacheManager::new(env)?;
     
     if let Some(cached) = cache_manager.get(&cache_key).await? {
@@ -90,7 +90,7 @@ pub async fn get_latest_photos(_req: Request, ctx: RouteContext<HandlerContext>)
         return Ok(response);
     }
     
-    let url = format!("https://api.nasa.gov/mars-photos/api/v1/rovers/{}/latest_photos", rover);
+    let url = format!("https://api.nasa.gov/mars-photos/api/v1/rovers/{rover}/latest_photos");
     
     let mut response = make_nasa_request(&url, &ctx).await?;
     let body = response.text().await?;
@@ -113,7 +113,7 @@ pub async fn get_manifest(_req: Request, ctx: RouteContext<HandlerContext>) -> w
     validate_rover(rover)?;
     
     // Check cache
-    let cache_key = format!("mars-photos/manifests/{}", rover);
+    let cache_key = format!("mars-photos/manifests/{rover}");
     let cache_manager = CacheManager::new(env)?;
     
     if let Some(cached) = cache_manager.get(&cache_key).await? {
@@ -122,7 +122,7 @@ pub async fn get_manifest(_req: Request, ctx: RouteContext<HandlerContext>) -> w
         return Ok(response);
     }
     
-    let url = format!("https://api.nasa.gov/mars-photos/api/v1/manifests/{}", rover);
+    let url = format!("https://api.nasa.gov/mars-photos/api/v1/manifests/{rover}");
     
     let mut response = make_nasa_request(&url, &ctx).await?;
     let body = response.text().await?;

@@ -1,5 +1,4 @@
 use worker::{Request, Response, RouteContext};
-use crate::error::Result;
 use crate::cache::{CacheManager, get_cache_key};
 use crate::utils;
 use super::make_nasa_request;
@@ -33,7 +32,7 @@ macro_rules! donki_handler {
                     } else {
                         url.push('&');
                     }
-                    url.push_str(&format!("{}={}", key, value));
+                    url.push_str(&format!("{key}={value}"));
                 }
             }
             

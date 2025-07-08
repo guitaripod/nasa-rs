@@ -1,7 +1,6 @@
 use chrono::{DateTime, Utc, Duration};
 use serde::{Deserialize, Serialize};
 use worker::{kv::KvStore, Env};
-use crate::error::NasaApiError;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CachedResponse {
@@ -57,6 +56,7 @@ impl CacheManager {
         Ok(())
     }
     
+    #[allow(dead_code)]
     pub async fn delete(&self, key: &str) -> worker::Result<()> {
         self.kv
             .delete(key)
@@ -73,11 +73,11 @@ pub fn get_cache_key(endpoint: &str, params: &[(String, String)]) -> String {
     
     let param_string = sorted_params
         .iter()
-        .map(|(k, v)| format!("{}={}", k, v))
+        .map(|(k, v)| format!("{k}={v}"))
         .collect::<Vec<_>>()
         .join("&");
     
-    format!("{}:{}", endpoint, param_string)
+    format!("{endpoint}:{param_string}")
 }
 
 pub fn get_ttl_for_endpoint(endpoint: &str) -> i64 {
