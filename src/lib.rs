@@ -1,3 +1,29 @@
+//! # NASA API Proxy Worker
+//! 
+//! A Cloudflare Worker that provides a unified interface to various NASA APIs with caching,
+//! rate limiting, and enhanced functionality.
+//! 
+//! ## Features
+//! 
+//! - **Unified API Access**: Single endpoint for multiple NASA data sources
+//! - **Intelligent Caching**: Reduces API calls and improves response times
+//! - **Rate Limiting**: Protects against abuse and ensures fair usage
+//! - **CORS Support**: Enables browser-based applications to access the API
+//! - **Enhanced Error Handling**: Consistent error responses across all endpoints
+//! 
+//! ## Available APIs
+//! 
+//! - APOD (Astronomy Picture of the Day)
+//! - NeoWs (Near Earth Objects)
+//! - DONKI (Space Weather Database)
+//! - Earth Imagery
+//! - EPIC (Earth Polychromatic Imaging Camera)
+//! - Mars Rover Photos
+//! - NASA Image and Video Library
+//! - Exoplanet Archive
+//! - SSD/CNEOS (Solar System Dynamics)
+//! - Tech Transfer
+
 use worker::*;
 
 mod cache;
@@ -11,7 +37,6 @@ mod utils;
 mod macros;
 
 pub use error::{NasaApiError, Result};
-use router::HandlerContext;
 
 #[event(fetch)]
 async fn main(req: Request, env: Env, ctx: Context) -> worker::Result<Response> {
