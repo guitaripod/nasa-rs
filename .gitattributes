@@ -1,3 +1,4 @@
 # Exclude from GitHub language statistics
 *.sh linguist-vendored
-Makefile linguist-vendored*.py linguist-vendored
+Makefile linguist-vendored
+*.py linguist-vendored
