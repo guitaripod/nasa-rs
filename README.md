@@ -85,7 +85,7 @@ To view the interactive documentation and examples locally:
 
 ```bash
 # From the project root, just run:
-./serve
+./scripts/serve
 
 # Opens http://localhost:8000 in your browser
 # Press Ctrl+C to stop
