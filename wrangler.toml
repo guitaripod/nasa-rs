@@ -1,0 +1,48 @@
+name = "nasa-api-worker"
+main = "build/worker/shim.mjs"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[build]
+command = "cargo install -q worker-build && ~/.cargo/bin/worker-build --release --no-opt"
+
+[vars]
+ENVIRONMENT = "production"
+
+# Enable observability logging
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+
+# Add your NASA API key as a secret using:
+# wrangler secret put NASA_API_KEY
+# Value: YOUR_NASA_API_KEY_HERE
+
+[[kv_namespaces]]
+binding = "NASA_CACHE"
+id = "3e91cbfaa6fe405e9d4aeae78f47e4ff"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "ce2a522e723542cda892659f3e3a5b67"
+
+[env.development]
+vars = { ENVIRONMENT = "development" }
+
+[env.staging]
+vars = { ENVIRONMENT = "staging" }
+
+# Route configuration (optional)
+# routes = [
+#   { pattern = "nasa-api.example.com/*", zone_name = "example.com" }
+# ]
+
+# Custom domain (optional)
+# route = "nasa-api.example.com/*"
+
+# R2 bucket for storing large media files (optional)
+# [[r2_buckets]]
+# binding = "NASA_MEDIA"
+# bucket_name = "nasa-media-storage"
