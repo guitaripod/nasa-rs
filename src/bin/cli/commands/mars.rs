@@ -29,21 +29,21 @@ pub async fn execute(
                 params.insert("page".to_string(), page.clone());
             }
             
-            let data = client.get(&format!("/api/mars-photos/{}/photos", rover), params).await?;
+            let data = client.get(&format!("/api/mars-photos/{rover}/photos"), params).await?;
             Ok(Some(data))
         }
         Some(("latest", sub_matches)) => {
             let rover = sub_matches.get_one::<String>("rover").unwrap();
             let params = HashMap::new();
             
-            let data = client.get(&format!("/api/mars-photos/{}/latest", rover), params).await?;
+            let data = client.get(&format!("/api/mars-photos/{rover}/latest"), params).await?;
             Ok(Some(data))
         }
         Some(("manifest", sub_matches)) => {
             let rover = sub_matches.get_one::<String>("rover").unwrap();
             let params = HashMap::new();
             
-            let data = client.get(&format!("/api/mars-photos/manifests/{}", rover), params).await?;
+            let data = client.get(&format!("/api/mars-photos/manifests/{rover}"), params).await?;
             Ok(Some(data))
         }
         _ => {

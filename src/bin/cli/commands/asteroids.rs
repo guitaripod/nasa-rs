@@ -26,7 +26,7 @@ pub async fn execute(
             let asteroid_id = sub_matches.get_one::<String>("id").unwrap();
             let params = HashMap::new();
             
-            let data = client.get(&format!("/api/neo/{}", asteroid_id), params).await?;
+            let data = client.get(&format!("/api/neo/{asteroid_id}"), params).await?;
             Ok(Some(data))
         }
         Some(("browse", sub_matches)) => {

@@ -5,7 +5,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use crate::cli::{
     api::ApiClient,
-    output::{Formatter, OutputFormat},
+    output::OutputFormat,
     commands::CommandContext,
 };
 
@@ -118,7 +118,7 @@ async fn explore_apod(client: &ApiClient, output_format: &OutputFormat) -> Resul
                 .default("5".to_string())
                 .validate_with(|input: &String| -> Result<(), &str> {
                     match input.parse::<u32>() {
-                        Ok(n) if n >= 1 && n <= 10 => Ok(()),
+                        Ok(n) if (1..=10).contains(&n) => Ok(()),
                         _ => Err("Please enter a number between 1 and 10")
                     }
                 })
@@ -132,12 +132,20 @@ async fn explore_apod(client: &ApiClient, output_format: &OutputFormat) -> Resul
             // Date range
             let start_date: String = Input::new()
                 .with_prompt("Enter start date (YYYY-MM-DD)")
-                .validate_with(validate_date)
+                .validate_with(|input: &String| {
+                    NaiveDate::parse_from_str(input, "%Y-%m-%d")
+                        .map(|_| ())
+                        .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
+                })
                 .interact()?;
             
             let end_date: String = Input::new()
                 .with_prompt("Enter end date (YYYY-MM-DD)")
-                .validate_with(validate_date)
+                .validate_with(|input: &String| {
+                    NaiveDate::parse_from_str(input, "%Y-%m-%d")
+                        .map(|_| ())
+                        .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
+                })
                 .interact()?;
             
             let mut params = HashMap::new();
@@ -176,12 +184,20 @@ async fn explore_asteroids(client: &ApiClient, output_format: &OutputFormat) -> 
             // Custom date range
             let start_date: String = Input::new()
                 .with_prompt("Enter start date (YYYY-MM-DD)")
-                .validate_with(validate_date)
+                .validate_with(|input: &String| {
+                    NaiveDate::parse_from_str(input, "%Y-%m-%d")
+                        .map(|_| ())
+                        .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
+                })
                 .interact()?;
             
             let end_date: String = Input::new()
                 .with_prompt("Enter end date (YYYY-MM-DD, max 7 days)")
-                .validate_with(validate_date)
+                .validate_with(|input: &String| {
+                    NaiveDate::parse_from_str(input, "%Y-%m-%d")
+                        .map(|_| ())
+                        .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
+                })
                 .interact()?;
             
             let mut params = HashMap::new();
@@ -195,7 +211,7 @@ async fn explore_asteroids(client: &ApiClient, output_format: &OutputFormat) -> 
                 .with_prompt("Enter asteroid ID (e.g., 3542519)")
                 .interact()?;
             
-            client.get(&format!("/api/neo/{}", asteroid_id), HashMap::new()).await?
+            client.get(&format!("/api/neo/{asteroid_id}"), HashMap::new()).await?
         }
         3 => {
             // Browse asteroids
@@ -247,13 +263,21 @@ async fn explore_space_weather(client: &ApiClient, output_format: &OutputFormat)
     if use_dates {
         let start_date: String = Input::new()
             .with_prompt("Enter start date (YYYY-MM-DD)")
-            .validate_with(validate_date)
+            .validate_with(|input: &String| {
+                NaiveDate::parse_from_str(input, "%Y-%m-%d")
+                    .map(|_| ())
+                    .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
+            })
             .interact()?;
         params.insert("startDate".to_string(), start_date);
         
         let end_date: String = Input::new()
             .with_prompt("Enter end date (YYYY-MM-DD)")
-            .validate_with(validate_date)
+            .validate_with(|input: &String| {
+                NaiveDate::parse_from_str(input, "%Y-%m-%d")
+                    .map(|_| ())
+                    .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
+            })
             .interact()?;
         params.insert("endDate".to_string(), end_date);
     }
@@ -299,7 +323,7 @@ async fn explore_mars(client: &ApiClient, output_format: &OutputFormat) -> Resul
     let data = match selection {
         0 => {
             // Latest photos
-            client.get(&format!("/api/mars-photos/{}/latest", rover), HashMap::new()).await?
+            client.get(&format!("/api/mars-photos/{rover}/latest"), HashMap::new()).await?
         }
         1 => {
             // Photos by sol
@@ -323,23 +347,27 @@ async fn explore_mars(client: &ApiClient, output_format: &OutputFormat) -> Resul
                 params.insert("camera".to_string(), selected_camera.to_string());
             }
             
-            client.get(&format!("/api/mars-photos/{}/photos", rover), params).await?
+            client.get(&format!("/api/mars-photos/{rover}/photos"), params).await?
         }
         2 => {
             // Photos by Earth date
             let date: String = Input::new()
                 .with_prompt("Enter Earth date (YYYY-MM-DD)")
-                .validate_with(validate_date)
+                .validate_with(|input: &String| {
+                    NaiveDate::parse_from_str(input, "%Y-%m-%d")
+                        .map(|_| ())
+                        .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
+                })
                 .interact()?;
             
             let mut params = HashMap::new();
             params.insert("earth_date".to_string(), date);
             
-            client.get(&format!("/api/mars-photos/{}/photos", rover), params).await?
+            client.get(&format!("/api/mars-photos/{rover}/photos"), params).await?
         }
         3 => {
             // Mission manifest
-            client.get(&format!("/api/mars-photos/manifests/{}", rover), HashMap::new()).await?
+            client.get(&format!("/api/mars-photos/manifests/{rover}"), HashMap::new()).await?
         }
         _ => unreachable!(),
     };
@@ -356,7 +384,7 @@ async fn explore_earth(client: &ApiClient, output_format: &OutputFormat) -> Resu
         .default("29.78".to_string())
         .validate_with(|input: &String| -> Result<(), &str> {
             match input.parse::<f64>() {
-                Ok(lat) if lat >= -90.0 && lat <= 90.0 => Ok(()),
+                Ok(lat) if (-90.0..=90.0).contains(&lat) => Ok(()),
                 _ => Err("Latitude must be between -90 and 90")
             }
         })
@@ -367,7 +395,7 @@ async fn explore_earth(client: &ApiClient, output_format: &OutputFormat) -> Resu
         .default("-95.33".to_string())
         .validate_with(|input: &String| -> Result<(), &str> {
             match input.parse::<f64>() {
-                Ok(lon) if lon >= -180.0 && lon <= 180.0 => Ok(()),
+                Ok(lon) if (-180.0..=180.0).contains(&lon) => Ok(()),
                 _ => Err("Longitude must be between -180 and 180")
             }
         })
@@ -376,7 +404,11 @@ async fn explore_earth(client: &ApiClient, output_format: &OutputFormat) -> Resu
     let date: String = Input::new()
         .with_prompt("Enter date (YYYY-MM-DD)")
         .default("2023-01-01".to_string())
-        .validate_with(validate_date)
+        .validate_with(|input: &String| {
+            NaiveDate::parse_from_str(input, "%Y-%m-%d")
+                .map(|_| ())
+                .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
+        })
         .interact()?;
     
     let options = vec!["Get Satellite Image", "Check Available Asset Dates"];
@@ -396,14 +428,13 @@ async fn explore_earth(client: &ApiClient, output_format: &OutputFormat) -> Resu
             if Confirm::new().with_prompt("Continue?").default(true).interact()? {
                 // For image endpoint, we'll just show the URL
                 println!("\n{}", "Image URL:".bright_green());
-                let url = format!("{}/api/earth/imagery?lat={}&lon={}&date={}&api_key={}",
-                    client.base_url(),
-                    params.get("lat").unwrap(),
-                    params.get("lon").unwrap(),
-                    params.get("date").unwrap(),
-                    client.api_key().unwrap_or("DEMO_KEY")
-                );
-                println!("{}", url);
+                let base_url = client.base_url();
+                let lat = params.get("lat").unwrap();
+                let lon = params.get("lon").unwrap();
+                let date = params.get("date").unwrap();
+                let api_key = client.api_key().unwrap_or("DEMO_KEY");
+                let url = format!("{base_url}/api/earth/imagery?lat={lat}&lon={lon}&date={date}&api_key={api_key}");
+                println!("{url}");
             }
         }
         1 => {
@@ -435,13 +466,17 @@ async fn explore_epic(client: &ApiClient, output_format: &OutputFormat) -> Resul
         .interact()?;
     
     let endpoint = match selection {
-        0 => format!("/api/epic/{}/all", image_type),
+        0 => format!("/api/epic/{image_type}/all"),
         1 => {
             let date: String = Input::new()
                 .with_prompt("Enter date (YYYY-MM-DD)")
-                .validate_with(validate_date)
+                .validate_with(|input: &String| {
+                    NaiveDate::parse_from_str(input, "%Y-%m-%d")
+                        .map(|_| ())
+                        .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
+                })
                 .interact()?;
-            format!("/api/epic/{}/date/{}", image_type, date)
+            format!("/api/epic/{image_type}/date/{date}")
         }
         _ => unreachable!(),
     };
@@ -559,7 +594,7 @@ async fn explore_exoplanets(client: &ApiClient, output_format: &OutputFormat) ->
             if name_filter.is_empty() {
                 "select * from ps where pl_name like 'Kepler%' limit 20".to_string()
             } else {
-                format!("select * from ps where pl_name like 'Kepler%{}%' limit 20", name_filter)
+                format!("select * from ps where pl_name like 'Kepler%{name_filter}%' limit 20")
             }
         }
         1 => {
@@ -615,13 +650,21 @@ async fn explore_ssd(client: &ApiClient, output_format: &OutputFormat) -> Result
                 
                 let date_min: String = Input::new()
                     .with_prompt("Enter start date (YYYY-MM-DD)")
-                    .validate_with(validate_date)
+                    .validate_with(|input: &String| {
+                    NaiveDate::parse_from_str(input, "%Y-%m-%d")
+                        .map(|_| ())
+                        .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
+                })
                     .interact()?;
                 params.insert("date-min".to_string(), date_min);
                 
                 let date_max: String = Input::new()
                     .with_prompt("Enter end date (YYYY-MM-DD)")
-                    .validate_with(validate_date)
+                    .validate_with(|input: &String| {
+                    NaiveDate::parse_from_str(input, "%Y-%m-%d")
+                        .map(|_| ())
+                        .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
+                })
                     .interact()?;
                 params.insert("date-max".to_string(), date_max);
             }
@@ -721,14 +764,15 @@ async fn configure_settings(context: &CommandContext) -> Result<(), Box<dyn std:
             };
             
             context.config_manager.set("output_format", format).await?;
-            println!("{}", format!("Output format set to: {}", format).bright_green());
+            println!("{}", format!("Output format set to: {format}").bright_green());
         }
         1 => {
             // Toggle cache
             let current = context.config.use_cache;
             let new_value = !current;
             context.config_manager.set("use_cache", &new_value.to_string()).await?;
-            println!("{}", format!("Cache {}", if new_value { "enabled" } else { "disabled" }).bright_green());
+            let status = if new_value { "enabled" } else { "disabled" };
+            println!("{}", format!("Cache {status}").bright_green());
         }
         2 => {
             // Clear cache - TODO: implement cache clearing
@@ -760,24 +804,24 @@ fn display_results(data: Value, output_format: &OutputFormat) -> Result<(), Box<
     // For long output, use a pager-like display
     let lines: Vec<&str> = formatted.lines().collect();
     if lines.len() > 30 {
-        println!("\n{}", format!("Showing {} lines of output:", lines.len()).bright_cyan());
+        let len = lines.len();
+        println!("\n{}", format!("Showing {len} lines of output:").bright_cyan());
         println!("{}", "=".repeat(50).bright_cyan());
         
         for (i, line) in lines.iter().enumerate() {
-            println!("{}", line);
+            println!("{line}");
             
             // Pause every 20 lines
-            if (i + 1) % 20 == 0 && i + 1 < lines.len() {
-                if !Confirm::new()
+            if (i + 1) % 20 == 0 && i + 1 < lines.len()
+                && !Confirm::new()
                     .with_prompt("Continue?")
                     .default(true)
                     .interact()? {
                     break;
                 }
-            }
         }
     } else {
-        println!("\n{}", formatted);
+        println!("\n{formatted}");
     }
     
     Ok(())
@@ -791,8 +835,3 @@ fn get_rover_cameras(rover: &str) -> Vec<&'static str> {
     }
 }
 
-fn validate_date(input: &String) -> Result<(), &'static str> {
-    NaiveDate::parse_from_str(input, "%Y-%m-%d")
-        .map(|_| ())
-        .map_err(|_| "Invalid date format. Use YYYY-MM-DD")
-}

@@ -86,7 +86,7 @@ impl ConfigManager {
             }
             "use_cache" => config.use_cache = value.parse()?,
             "cache_ttl_minutes" => config.cache_ttl_minutes = value.parse()?,
-            _ => return Err(format!("Unknown config key: {}", key).into()),
+            _ => return Err(format!("Unknown config key: {key}").into()),
         }
         
         self.save(&config).await?;

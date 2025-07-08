@@ -37,12 +37,12 @@ pub async fn execute(
                         "table" => OutputFormat::Table,
                         "pretty" => OutputFormat::Pretty,
                         "csv" => OutputFormat::Csv,
-                        _ => return Err(format!("Invalid output format: {}", value).into()),
+                        _ => return Err(format!("Invalid output format: {value}").into()),
                     };
                 }
                 "use_cache" => config.use_cache = value.parse::<bool>()?,
                 "cache_ttl_minutes" => config.cache_ttl_minutes = value.parse::<u64>()?,
-                _ => return Err(format!("Unknown configuration key: {}", key).into()),
+                _ => return Err(format!("Unknown configuration key: {key}").into()),
             }
             
             context.config_manager.save(&config).await?;

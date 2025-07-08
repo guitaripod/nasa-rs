@@ -23,7 +23,7 @@ pub async fn execute(
             let mut query = "select * from ps where pl_name like 'Kepler%'".to_string();
             
             if let Some(name) = sub_matches.get_one::<String>("name") {
-                query = format!("select * from ps where pl_name like 'Kepler%{}%'", name);
+                query = format!("select * from ps where pl_name like 'Kepler%{name}%'");
             }
             
             let mut params = HashMap::new();

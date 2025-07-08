@@ -14,7 +14,7 @@ pub async fn execute(
                 if d == "all" {
                     "/api/epic/natural/all".to_string()
                 } else {
-                    format!("/api/epic/natural/date/{}", d)
+                    format!("/api/epic/natural/date/{d}")
                 }
             } else {
                 "/api/epic/natural/all".to_string()
@@ -30,7 +30,7 @@ pub async fn execute(
                 if d == "all" {
                     "/api/epic/enhanced/all".to_string()
                 } else {
-                    format!("/api/epic/enhanced/date/{}", d)
+                    format!("/api/epic/enhanced/date/{d}")
                 }
             } else {
                 "/api/epic/enhanced/all".to_string()
