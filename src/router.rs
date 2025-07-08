@@ -1,8 +1,10 @@
 use worker::*;
 use crate::{handlers, middleware};
 
+#[allow(dead_code)]
 pub type HandlerContext = (Env, Context);
 
+#[allow(dead_code)]
 pub fn create_router(env: Env, ctx: Context) -> Router<'static, HandlerContext> {
     Router::with_data((env, ctx))
         // Landing page - serve the HTML

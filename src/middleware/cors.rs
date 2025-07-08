@@ -3,7 +3,7 @@ use worker::{Headers, Method, Request, Response};
 pub async fn handle_cors(req: Request) -> worker::Result<Response> {
     let origin = req.headers().get("Origin")?.unwrap_or_default();
     
-    let mut headers = Headers::new();
+    let headers = Headers::new();
     headers.set("Access-Control-Allow-Origin", &origin)?;
     headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")?;
     headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization")?;
@@ -17,6 +17,7 @@ pub async fn handle_cors(req: Request) -> worker::Result<Response> {
     Response::error("Not Found", 404)
 }
 
+#[allow(dead_code)]
 pub fn add_cors_headers(response: &mut Response, origin: &str) -> worker::Result<()> {
     let headers = response.headers_mut();
     headers.set("Access-Control-Allow-Origin", origin)?;
