@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""
+Simple one-command server for NASA-RS documentation.
+Automatically handles port cleanup on exit.
+"""
+
+import http.server
+import socketserver
+import os
+import sys
+import signal
+import webbrowser
+from pathlib import Path
+
+# Default port
+PORT = 8000
+
+class QuietHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    """HTTP handler with minimal logging"""
+    
+    def log_message(self, format, *args):
+        # Only log errors
+        if args[1] != '200':
+            super().log_message(format, *args)
+    
+    def end_headers(self):
+        self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate')
+        super().end_headers()
+
+def cleanup(signum, frame):
+    """Clean shutdown on Ctrl+C"""
+    print("\n✅ Server stopped")
+    sys.exit(0)
+
+# Register signal handler
+signal.signal(signal.SIGINT, cleanup)
+
+# Change to docs directory
+docs_dir = Path(__file__).parent / 'docs'
+os.chdir(docs_dir)
+
+# Try to start server
+httpd = None
+for port in range(PORT, PORT + 10):
+    try:
+        httpd = socketserver.TCPServer(("", port), QuietHTTPRequestHandler)
+        httpd.allow_reuse_address = True
+        PORT = port
+        break
+    except OSError:
+        continue
+
+if httpd is None:
+    print("❌ Error: Could not find an available port")
+    sys.exit(1)
+
+# Print welcome message
+print(f"🚀 NASA-RS Docs → http://localhost:{PORT}")
+print("   Press Ctrl+C to stop\n")
+
+# Open browser
+webbrowser.open(f'http://localhost:{PORT}')
+
+# Serve
+try:
+    httpd.serve_forever()
+except KeyboardInterrupt:
+    cleanup(None, None)
+finally:
+    if httpd:
+        httpd.shutdown()
+        httpd.server_close()
