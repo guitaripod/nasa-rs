@@ -155,7 +155,6 @@ paths:
           schema:
             type: string
             format: date
-            default: today
           example: "2024-01-15"
         - name: end_date
           in: query
@@ -163,7 +162,6 @@ paths:
           schema:
             type: string
             format: date
-            default: 7 days after start_date
           example: "2024-01-22"
       responses:
         '200':
@@ -1892,6 +1890,8 @@ components:
           type: array
           items:
             type: array
+            items:
+              type: string
 
     SbdbResponse:
       type: object
@@ -1960,3 +1960,5 @@ components:
           type: array
           items:
             type: array
+            items:
+              type: string
