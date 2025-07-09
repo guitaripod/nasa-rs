@@ -1,0 +1,1962 @@
+openapi: 3.0.3
+info:
+  title: NASA API Proxy Service
+  description: |
+    # NASA API Proxy Service 🚀
+
+    A high-performance Cloudflare Worker providing unified access to various NASA APIs with intelligent caching, rate limiting, and enhanced features.
+
+    ## Features
+    - **Unified Access**: Single endpoint for multiple NASA data sources
+    - **Intelligent Caching**: Reduces API calls and improves response times
+    - **Rate Limiting**: Fair usage protection across all endpoints
+    - **CORS Support**: Browser-friendly API access
+    - **No API Key Required**: The proxy handles NASA API authentication
+
+    ## Available Data Sources
+    - **APOD**: Astronomy Picture of the Day
+    - **NEO**: Near Earth Objects tracking
+    - **DONKI**: Space Weather Database
+    - **Earth**: Satellite imagery
+    - **EPIC**: Earth Polychromatic Imaging Camera
+    - **Mars Rovers**: Photos from Mars missions
+    - **Media Library**: NASA images and videos
+    - **Exoplanets**: Confirmed exoplanet data
+    - **SSD/CNEOS**: Solar System Dynamics
+    - **Tech Transfer**: NASA technology innovations
+
+    ## Getting Started
+    All endpoints are available at `https://nasa-api-worker.guitaripod.workers.dev/api/*`
+    
+    No authentication is required - the proxy handles NASA API keys internally.
+
+    ## Rate Limits
+    - 100 requests per minute per IP address
+    - Cached responses don't count against rate limits
+
+    ## Support
+    For issues or feature requests, please contact the API maintainer.
+  version: 1.0.0
+  contact:
+    name: API Support
+    url: https://github.com/yourusername/nasa-api-proxy
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://nasa-api-worker.guitaripod.workers.dev
+    description: Production server
+
+tags:
+  - name: APOD
+    description: Astronomy Picture of the Day - Daily space imagery with scientific explanations
+  - name: NEO
+    description: Near Earth Objects - Track asteroids and comets near Earth
+  - name: DONKI
+    description: Space Weather Database - Real-time space weather events and notifications
+  - name: Earth
+    description: Earth Imagery - Landsat satellite imagery of Earth locations
+  - name: EPIC
+    description: Earth Polychromatic Imaging Camera - Full disc Earth imagery
+  - name: Mars
+    description: Mars Rover Photos - Images from Curiosity, Opportunity, and Spirit rovers
+  - name: Media
+    description: NASA Image and Video Library - Search NASA's media archives
+  - name: Exoplanets
+    description: Exoplanet Archive - Query confirmed exoplanet data
+  - name: SSD
+    description: Solar System Dynamics - Orbital data and impact risk assessment
+  - name: Tech Transfer
+    description: Technology Transfer - NASA patents, software, and spinoffs
+
+paths:
+  /api/apod:
+    get:
+      tags:
+        - APOD
+      summary: Get Astronomy Picture of the Day
+      description: |
+        Retrieve the Astronomy Picture of the Day with explanation. Returns daily space imagery 
+        ranging from photographs to artist concepts, each with a brief scientific explanation.
+      parameters:
+        - name: date
+          in: query
+          description: Date of the APOD image to retrieve
+          schema:
+            type: string
+            format: date
+            example: "2024-01-15"
+        - name: start_date
+          in: query
+          description: Start of date range (requires end_date)
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: End of date range (requires start_date)
+          schema:
+            type: string
+            format: date
+        - name: count
+          in: query
+          description: Return random APODs (cannot be used with date parameters)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: thumbs
+          in: query
+          description: Include thumbnail URL for video APODs
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ApodResponse'
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/ApodResponse'
+              examples:
+                single:
+                  summary: Single APOD
+                  value:
+                    copyright: "John Doe"
+                    date: "2024-01-15"
+                    explanation: "This stunning image shows..."
+                    hdurl: "https://apod.nasa.gov/apod/image/2401/example_hd.jpg"
+                    media_type: "image"
+                    service_version: "v1"
+                    title: "The Andromeda Galaxy"
+                    url: "https://apod.nasa.gov/apod/image/2401/example.jpg"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/neo/feed:
+    get:
+      tags:
+        - NEO
+      summary: Get NEO feed by date range
+      description: Retrieve a list of Near Earth Objects within a date range, including close approach data
+      parameters:
+        - name: start_date
+          in: query
+          description: Start date for NEO search
+          schema:
+            type: string
+            format: date
+            default: today
+          example: "2024-01-15"
+        - name: end_date
+          in: query
+          description: End date for NEO search (max 7 days after start_date)
+          schema:
+            type: string
+            format: date
+            default: 7 days after start_date
+          example: "2024-01-22"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NeoFeedResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /api/neo/{asteroid_id}:
+    get:
+      tags:
+        - NEO
+      summary: Get specific NEO by ID
+      description: Retrieve detailed information about a specific Near Earth Object
+      parameters:
+        - name: asteroid_id
+          in: path
+          required: true
+          description: Asteroid SPK-ID
+          schema:
+            type: string
+          example: "3542519"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Neo'
+        '404':
+          description: Asteroid not found
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /api/neo/browse:
+    get:
+      tags:
+        - NEO
+      summary: Browse all NEOs with pagination
+      description: Browse the overall Near Earth Object dataset with pagination support
+      parameters:
+        - name: page
+          in: query
+          description: Page number (0-indexed)
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Number of NEOs per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 20
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NeoBrowseResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /api/donki/cme:
+    get:
+      tags:
+        - DONKI
+      summary: Get Coronal Mass Ejections
+      description: Retrieve Coronal Mass Ejection (CME) events from the Space Weather Database
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Array of CME events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CmeEvent'
+
+  /api/donki/cme-analysis:
+    get:
+      tags:
+        - DONKI
+      summary: Get CME Analysis data
+      description: Retrieve detailed Coronal Mass Ejection analysis data
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Array of CME analysis events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/donki/gst:
+    get:
+      tags:
+        - DONKI
+      summary: Get Geomagnetic Storms
+      description: Retrieve Geomagnetic Storm (GST) events
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Array of GST events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GstEvent'
+
+  /api/donki/ips:
+    get:
+      tags:
+        - DONKI
+      summary: Get Interplanetary Shocks
+      description: Retrieve Interplanetary Shock (IPS) events
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Array of IPS events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IpsEvent'
+
+  /api/donki/flr:
+    get:
+      tags:
+        - DONKI
+      summary: Get Solar Flares
+      description: Retrieve Solar Flare (FLR) events
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Array of FLR events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlrEvent'
+
+  /api/donki/sep:
+    get:
+      tags:
+        - DONKI
+      summary: Get Solar Energetic Particles
+      description: Retrieve Solar Energetic Particle (SEP) events
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Array of SEP events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SepEvent'
+
+  /api/donki/mpc:
+    get:
+      tags:
+        - DONKI
+      summary: Get Magnetopause Crossings
+      description: Retrieve Magnetopause Crossing (MPC) events
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Array of MPC events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MpcEvent'
+
+  /api/donki/rbe:
+    get:
+      tags:
+        - DONKI
+      summary: Get Radiation Belt Enhancements
+      description: Retrieve Radiation Belt Enhancement (RBE) events
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Array of RBE events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RbeEvent'
+
+  /api/donki/hss:
+    get:
+      tags:
+        - DONKI
+      summary: Get High Speed Streams
+      description: Retrieve High Speed Stream (HSS) events
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Array of HSS events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HssEvent'
+
+  /api/donki/wsa-enlil:
+    get:
+      tags:
+        - DONKI
+      summary: Get WSA+Enlil Simulations
+      description: Retrieve WSA+Enlil solar wind prediction simulations
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Array of WSA+Enlil simulations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WsaEnlilSimulation'
+
+  /api/donki/notifications:
+    get:
+      tags:
+        - DONKI
+      summary: Get Space Weather Notifications
+      description: Retrieve space weather notifications and alerts
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+      responses:
+        '200':
+          description: Array of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+
+  /api/earth/imagery:
+    get:
+      tags:
+        - Earth
+      summary: Get Earth imagery for location
+      description: Retrieve Landsat 8 satellite imagery for a specific Earth location
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          description: Latitude
+          schema:
+            type: number
+            minimum: -90
+            maximum: 90
+          example: 29.78
+        - name: lon
+          in: query
+          required: true
+          description: Longitude
+          schema:
+            type: number
+            minimum: -180
+            maximum: 180
+          example: -95.33
+        - name: date
+          in: query
+          description: Date of imagery
+          schema:
+            type: string
+            format: date
+          example: "2023-06-15"
+        - name: dim
+          in: query
+          description: Image width and height in degrees
+          schema:
+            type: number
+            minimum: 0.01
+            maximum: 0.3
+            default: 0.15
+      responses:
+        '200':
+          description: Satellite image
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/earth/assets:
+    get:
+      tags:
+        - Earth
+      summary: Get available imagery dates
+      description: Retrieve dates for available Landsat 8 imagery at a location
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          description: Latitude
+          schema:
+            type: number
+            minimum: -90
+            maximum: 90
+        - name: lon
+          in: query
+          required: true
+          description: Longitude
+          schema:
+            type: number
+            minimum: -180
+            maximum: 180
+        - name: date
+          in: query
+          required: true
+          description: Reference date
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Available imagery assets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EarthAsset'
+
+  /api/epic/natural/all:
+    get:
+      tags:
+        - EPIC
+      summary: Get all natural color images
+      description: Retrieve the most recent natural color images of Earth
+      responses:
+        '200':
+          description: Array of EPIC images
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EpicImage'
+
+  /api/epic/natural/date/{date}:
+    get:
+      tags:
+        - EPIC
+      summary: Get natural color images by date
+      description: Retrieve natural color Earth images for a specific date
+      parameters:
+        - name: date
+          in: path
+          required: true
+          description: Date to retrieve images
+          schema:
+            type: string
+            format: date
+          example: "2024-01-15"
+      responses:
+        '200':
+          description: Array of EPIC images
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EpicImage'
+
+  /api/epic/enhanced/all:
+    get:
+      tags:
+        - EPIC
+      summary: Get all enhanced color images
+      description: Retrieve the most recent enhanced color images of Earth
+      responses:
+        '200':
+          description: Array of EPIC images
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EpicImage'
+
+  /api/epic/enhanced/date/{date}:
+    get:
+      tags:
+        - EPIC
+      summary: Get enhanced color images by date
+      description: Retrieve enhanced color Earth images for a specific date
+      parameters:
+        - name: date
+          in: path
+          required: true
+          description: Date to retrieve images
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Array of EPIC images
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EpicImage'
+
+  /api/mars-photos/{rover}/photos:
+    get:
+      tags:
+        - Mars
+      summary: Get Mars rover photos
+      description: Retrieve photos taken by a specific Mars rover
+      parameters:
+        - name: rover
+          in: path
+          required: true
+          description: Rover name
+          schema:
+            type: string
+            enum: [curiosity, opportunity, spirit]
+        - name: sol
+          in: query
+          description: Martian sol (day) of photos
+          schema:
+            type: integer
+            minimum: 0
+          example: 1000
+        - name: earth_date
+          in: query
+          description: Earth date of photos (use either sol or earth_date)
+          schema:
+            type: string
+            format: date
+        - name: camera
+          in: query
+          description: Filter by camera
+          schema:
+            type: string
+            enum: [FHAZ, RHAZ, MAST, CHEMCAM, MAHLI, MARDI, NAVCAM, PANCAM, MINITES]
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+      responses:
+        '200':
+          description: Mars rover photos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarsPhotosResponse'
+
+  /api/mars-photos/{rover}/latest:
+    get:
+      tags:
+        - Mars
+      summary: Get latest Mars rover photos
+      description: Retrieve the most recent photos from a Mars rover
+      parameters:
+        - name: rover
+          in: path
+          required: true
+          description: Rover name
+          schema:
+            type: string
+            enum: [curiosity, opportunity, spirit]
+      responses:
+        '200':
+          description: Latest Mars rover photos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarsPhotosResponse'
+
+  /api/mars-photos/manifests/{rover}:
+    get:
+      tags:
+        - Mars
+      summary: Get Mars rover manifest
+      description: Retrieve mission manifest for a Mars rover
+      parameters:
+        - name: rover
+          in: path
+          required: true
+          description: Rover name
+          schema:
+            type: string
+            enum: [curiosity, opportunity, spirit]
+      responses:
+        '200':
+          description: Rover mission manifest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarsManifest'
+
+  /api/media/search:
+    get:
+      tags:
+        - Media
+      summary: Search NASA media library
+      description: Search NASA's image and video library
+      parameters:
+        - name: q
+          in: query
+          description: Free text search terms
+          schema:
+            type: string
+          example: "apollo 11"
+        - name: center
+          in: query
+          description: NASA center
+          schema:
+            type: string
+          example: "JSC"
+        - name: description
+          in: query
+          description: Search in descriptions
+          schema:
+            type: string
+        - name: keywords
+          in: query
+          description: Comma-separated keywords
+          schema:
+            type: string
+        - name: location
+          in: query
+          description: Geographic location
+          schema:
+            type: string
+        - name: media_type
+          in: query
+          description: Filter by media type
+          schema:
+            type: string
+            enum: [image, video, audio]
+        - name: nasa_id
+          in: query
+          description: NASA asset ID
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: photographer
+          in: query
+          description: Photographer name
+          schema:
+            type: string
+        - name: title
+          in: query
+          description: Search in titles
+          schema:
+            type: string
+        - name: year_start
+          in: query
+          description: Start year
+          schema:
+            type: string
+        - name: year_end
+          in: query
+          description: End year
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaSearchResponse'
+
+  /api/media/asset/{nasa_id}:
+    get:
+      tags:
+        - Media
+      summary: Get media asset files
+      description: Retrieve file URLs for a specific NASA media asset
+      parameters:
+        - name: nasa_id
+          in: path
+          required: true
+          description: NASA asset ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Asset file URLs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaAssetResponse'
+
+  /api/media/metadata/{nasa_id}:
+    get:
+      tags:
+        - Media
+      summary: Get media metadata
+      description: Retrieve metadata for a specific NASA media asset
+      parameters:
+        - name: nasa_id
+          in: path
+          required: true
+          description: NASA asset ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Asset metadata
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/media/captions/{nasa_id}:
+    get:
+      tags:
+        - Media
+      summary: Get media captions
+      description: Retrieve captions/subtitles for a NASA video asset
+      parameters:
+        - name: nasa_id
+          in: path
+          required: true
+          description: NASA asset ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Video captions
+          content:
+            text/vtt:
+              schema:
+                type: string
+
+  /api/exoplanets/query:
+    get:
+      tags:
+        - Exoplanets
+      summary: Query exoplanet archive
+      description: Query the NASA Exoplanet Archive using TAP (Table Access Protocol)
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: TAP query string
+          schema:
+            type: string
+          example: "select * from ps where pl_name like 'Kepler%' limit 10"
+        - name: format
+          in: query
+          description: Output format
+          schema:
+            type: string
+            enum: [json, csv, xml]
+            default: json
+      responses:
+        '200':
+          description: Query results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExoplanetResponse'
+
+  /api/ssd/cad:
+    get:
+      tags:
+        - SSD
+      summary: Get close approach data
+      description: Query close approach data for asteroids and comets
+      parameters:
+        - name: date-min
+          in: query
+          description: Start date for close approaches
+          schema:
+            type: string
+            format: date
+        - name: date-max
+          in: query
+          description: End date for close approaches
+          schema:
+            type: string
+            format: date
+        - name: dist-max
+          in: query
+          description: Maximum approach distance (au)
+          schema:
+            type: number
+        - name: h-max
+          in: query
+          description: Maximum absolute magnitude
+          schema:
+            type: number
+        - name: pha
+          in: query
+          description: Limit to potentially hazardous asteroids
+          schema:
+            type: boolean
+        - name: nea-comet
+          in: query
+          description: Include near-Earth comets
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Close approach data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CadResponse'
+
+  /api/ssd/sbdb:
+    get:
+      tags:
+        - SSD
+      summary: Small Body Database lookup
+      description: Look up a specific asteroid or comet
+      parameters:
+        - name: sstr
+          in: query
+          required: true
+          description: Search string (name, designation, or SPK-ID)
+          schema:
+            type: string
+          example: "433"
+        - name: cad
+          in: query
+          description: Include close-approach data
+          schema:
+            type: boolean
+        - name: phys-par
+          in: query
+          description: Include physical parameters
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Small body data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SbdbResponse'
+
+  /api/ssd/sentry:
+    get:
+      tags:
+        - SSD
+      summary: Get Sentry impact risk data
+      description: Query potential future Earth impact risks
+      parameters:
+        - name: all
+          in: query
+          description: Return all objects
+          schema:
+            type: boolean
+        - name: removed
+          in: query
+          description: Include removed objects
+          schema:
+            type: boolean
+        - name: ip-min
+          in: query
+          description: Minimum impact probability
+          schema:
+            type: number
+        - name: ps-min
+          in: query
+          description: Minimum Palermo scale
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Sentry impact risk data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentryResponse'
+
+  /api/ssd/scout:
+    get:
+      tags:
+        - SSD
+      summary: Get Scout trajectory analysis
+      description: Get trajectory analysis for recently discovered objects
+      parameters:
+        - name: tdes
+          in: query
+          required: true
+          description: Temporary designation
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Scout trajectory data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoutResponse'
+
+  /api/ssd/nhats:
+    get:
+      tags:
+        - SSD
+      summary: Get NHATS objects
+      description: Query Near-Earth objects suitable for human spaceflight missions
+      parameters:
+        - name: dv
+          in: query
+          description: Maximum delta-v (km/s)
+          schema:
+            type: number
+        - name: dur
+          in: query
+          description: Maximum mission duration (days)
+          schema:
+            type: number
+        - name: stay
+          in: query
+          description: Minimum stay time (days)
+          schema:
+            type: number
+        - name: h-max
+          in: query
+          description: Maximum absolute magnitude
+          schema:
+            type: number
+      responses:
+        '200':
+          description: NHATS object data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NhatsResponse'
+
+  /api/ssd/fireballs:
+    get:
+      tags:
+        - SSD
+      summary: Get fireball events
+      description: Query atmospheric fireball events detected by US Government sensors
+      parameters:
+        - name: date-min
+          in: query
+          description: Start date
+          schema:
+            type: string
+            format: date
+        - name: date-max
+          in: query
+          description: End date
+          schema:
+            type: string
+            format: date
+        - name: energy-min
+          in: query
+          description: Minimum total radiated energy (joules)
+          schema:
+            type: number
+        - name: energy-max
+          in: query
+          description: Maximum total radiated energy (joules)
+          schema:
+            type: number
+        - name: limit
+          in: query
+          description: Result limit
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Fireball event data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FireballResponse'
+
+  /api/techtransfer/patents:
+    get:
+      tags:
+        - Tech Transfer
+      summary: Search NASA patents
+      description: Search NASA's patent portfolio
+      parameters:
+        - $ref: '#/components/parameters/techCenter'
+        - $ref: '#/components/parameters/techYear'
+        - $ref: '#/components/parameters/techWord'
+      responses:
+        '200':
+          description: Patent search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TechTransferResponse'
+
+  /api/techtransfer/patents-issued:
+    get:
+      tags:
+        - Tech Transfer
+      summary: Search issued NASA patents
+      description: Search NASA's issued patents only
+      parameters:
+        - $ref: '#/components/parameters/techCenter'
+        - $ref: '#/components/parameters/techYear'
+        - $ref: '#/components/parameters/techWord'
+      responses:
+        '200':
+          description: Issued patent search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TechTransferResponse'
+
+  /api/techtransfer/software:
+    get:
+      tags:
+        - Tech Transfer
+      summary: Search NASA software
+      description: Search NASA's software catalog
+      parameters:
+        - $ref: '#/components/parameters/techCenter'
+        - $ref: '#/components/parameters/techYear'
+        - $ref: '#/components/parameters/techWord'
+      responses:
+        '200':
+          description: Software search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TechTransferResponse'
+
+  /api/techtransfer/spinoffs:
+    get:
+      tags:
+        - Tech Transfer
+      summary: Search NASA spinoffs
+      description: Search NASA technology spinoffs
+      parameters:
+        - $ref: '#/components/parameters/techCenter'
+        - $ref: '#/components/parameters/techYear'
+        - $ref: '#/components/parameters/techWord'
+      responses:
+        '200':
+          description: Spinoff search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TechTransferResponse'
+
+components:
+  parameters:
+    startDate:
+      name: startDate
+      in: query
+      description: Start date for date range queries
+      schema:
+        type: string
+        format: date
+      example: "2024-01-01"
+
+    endDate:
+      name: endDate
+      in: query
+      description: End date for date range queries
+      schema:
+        type: string
+        format: date
+      example: "2024-01-31"
+
+    techCenter:
+      name: center
+      in: query
+      description: NASA center
+      schema:
+        type: string
+
+    techYear:
+      name: year
+      in: query
+      description: Year
+      schema:
+        type: string
+
+    techWord:
+      name: word
+      in: query
+      description: Search term
+      schema:
+        type: string
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Invalid date format. Use YYYY-MM-DD"
+
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Request limit per window
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Remaining requests in window
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: Time when rate limit resets (Unix timestamp)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Rate limit exceeded. Please try again later."
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      required:
+        - error
+
+    ApodResponse:
+      type: object
+      properties:
+        copyright:
+          type: string
+          description: Image copyright holder
+        date:
+          type: string
+          format: date
+          description: Date of the APOD
+        explanation:
+          type: string
+          description: Scientific explanation of the image
+        hdurl:
+          type: string
+          format: uri
+          description: URL of high-resolution image
+        media_type:
+          type: string
+          enum: [image, video]
+          description: Type of media
+        service_version:
+          type: string
+          description: API service version
+        title:
+          type: string
+          description: Title of the APOD
+        url:
+          type: string
+          format: uri
+          description: URL of the image/video
+        thumbnail_url:
+          type: string
+          format: uri
+          description: Thumbnail URL for videos
+      required:
+        - date
+        - explanation
+        - media_type
+        - service_version
+        - title
+        - url
+
+    Neo:
+      type: object
+      properties:
+        id:
+          type: string
+        neo_reference_id:
+          type: string
+        name:
+          type: string
+        nasa_jpl_url:
+          type: string
+          format: uri
+        absolute_magnitude_h:
+          type: number
+        estimated_diameter:
+          $ref: '#/components/schemas/EstimatedDiameter'
+        is_potentially_hazardous_asteroid:
+          type: boolean
+        close_approach_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CloseApproach'
+        is_sentry_object:
+          type: boolean
+        orbital_data:
+          type: object
+
+    EstimatedDiameter:
+      type: object
+      properties:
+        kilometers:
+          $ref: '#/components/schemas/DiameterRange'
+        meters:
+          $ref: '#/components/schemas/DiameterRange'
+        miles:
+          $ref: '#/components/schemas/DiameterRange'
+        feet:
+          $ref: '#/components/schemas/DiameterRange'
+
+    DiameterRange:
+      type: object
+      properties:
+        estimated_diameter_min:
+          type: number
+        estimated_diameter_max:
+          type: number
+
+    CloseApproach:
+      type: object
+      properties:
+        close_approach_date:
+          type: string
+        close_approach_date_full:
+          type: string
+        epoch_date_close_approach:
+          type: integer
+        relative_velocity:
+          type: object
+          properties:
+            kilometers_per_second:
+              type: string
+            kilometers_per_hour:
+              type: string
+            miles_per_hour:
+              type: string
+        miss_distance:
+          type: object
+          properties:
+            astronomical:
+              type: string
+            lunar:
+              type: string
+            kilometers:
+              type: string
+            miles:
+              type: string
+        orbiting_body:
+          type: string
+
+    NeoFeedResponse:
+      type: object
+      properties:
+        links:
+          $ref: '#/components/schemas/Links'
+        element_count:
+          type: integer
+        near_earth_objects:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/Neo'
+
+    NeoBrowseResponse:
+      type: object
+      properties:
+        links:
+          $ref: '#/components/schemas/Links'
+        page:
+          $ref: '#/components/schemas/PageInfo'
+        near_earth_objects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Neo'
+
+    Links:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri
+        next:
+          type: string
+          format: uri
+        prev:
+          type: string
+          format: uri
+
+    PageInfo:
+      type: object
+      properties:
+        size:
+          type: integer
+        total_elements:
+          type: integer
+        total_pages:
+          type: integer
+        number:
+          type: integer
+
+    CmeEvent:
+      type: object
+      properties:
+        cmeID:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        sourceLocation:
+          type: string
+        note:
+          type: string
+        instruments:
+          type: array
+          items:
+            type: object
+        cmeAnalyses:
+          type: array
+          items:
+            type: object
+        linkedEvents:
+          type: array
+          items:
+            type: string
+
+    GstEvent:
+      type: object
+      properties:
+        gstID:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        allKpIndex:
+          type: array
+          items:
+            type: object
+        linkedEvents:
+          type: array
+          items:
+            type: string
+
+    IpsEvent:
+      type: object
+      properties:
+        ipsID:
+          type: string
+        eventTime:
+          type: string
+          format: date-time
+        location:
+          type: string
+        instruments:
+          type: array
+          items:
+            type: object
+
+    FlrEvent:
+      type: object
+      properties:
+        flrID:
+          type: string
+        instruments:
+          type: array
+          items:
+            type: object
+        beginTime:
+          type: string
+          format: date-time
+        peakTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        classType:
+          type: string
+        sourceLocation:
+          type: string
+        activeRegionNum:
+          type: number
+        linkedEvents:
+          type: array
+          items:
+            type: string
+
+    SepEvent:
+      type: object
+      properties:
+        sepID:
+          type: string
+        eventTime:
+          type: string
+          format: date-time
+        instruments:
+          type: array
+          items:
+            type: object
+        linkedEvents:
+          type: array
+          items:
+            type: string
+
+    MpcEvent:
+      type: object
+      properties:
+        mpcID:
+          type: string
+        eventTime:
+          type: string
+          format: date-time
+        instruments:
+          type: array
+          items:
+            type: object
+        linkedEvents:
+          type: array
+          items:
+            type: string
+
+    RbeEvent:
+      type: object
+      properties:
+        rbeID:
+          type: string
+        eventTime:
+          type: string
+          format: date-time
+        instruments:
+          type: array
+          items:
+            type: object
+        linkedEvents:
+          type: array
+          items:
+            type: string
+
+    HssEvent:
+      type: object
+      properties:
+        hssID:
+          type: string
+        eventTime:
+          type: string
+          format: date-time
+        instruments:
+          type: array
+          items:
+            type: object
+        linkedEvents:
+          type: array
+          items:
+            type: string
+
+    WsaEnlilSimulation:
+      type: object
+      properties:
+        simulationID:
+          type: string
+        modelCompletionTime:
+          type: string
+          format: date-time
+        au:
+          type: number
+        estimatedShockArrivalTime:
+          type: string
+          format: date-time
+        estimatedDuration:
+          type: number
+        rmin_re:
+          type: number
+        kp_18:
+          type: number
+        kp_90:
+          type: number
+        kp_135:
+          type: number
+        kp_180:
+          type: number
+        isEarthGB:
+          type: boolean
+        impactList:
+          type: array
+          items:
+            type: object
+        cmeInputs:
+          type: array
+          items:
+            type: object
+
+    Notification:
+      type: object
+      properties:
+        messageType:
+          type: string
+        messageID:
+          type: string
+        messageURL:
+          type: string
+        messageIssueTime:
+          type: string
+          format: date-time
+        messageBody:
+          type: string
+
+    EarthAsset:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        id:
+          type: string
+        url:
+          type: string
+          format: uri
+        cloud_score:
+          type: number
+      required:
+        - date
+        - id
+        - url
+
+    EpicImage:
+      type: object
+      properties:
+        identifier:
+          type: string
+        caption:
+          type: string
+        image:
+          type: string
+        version:
+          type: string
+        date:
+          type: string
+          format: date-time
+        coords:
+          type: object
+          properties:
+            lat:
+              type: number
+            lon:
+              type: number
+        sun_j2000_position:
+          type: object
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+            z:
+              type: number
+        lunar_j2000_position:
+          type: object
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+            z:
+              type: number
+        attitude_quaternions:
+          type: object
+          properties:
+            q0:
+              type: number
+            q1:
+              type: number
+            q2:
+              type: number
+            q3:
+              type: number
+
+    MarsPhoto:
+      type: object
+      properties:
+        id:
+          type: integer
+        sol:
+          type: integer
+        camera:
+          $ref: '#/components/schemas/Camera'
+        img_src:
+          type: string
+          format: uri
+        earth_date:
+          type: string
+          format: date
+        rover:
+          $ref: '#/components/schemas/Rover'
+
+    Camera:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        rover_id:
+          type: integer
+        full_name:
+          type: string
+
+    Rover:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        landing_date:
+          type: string
+          format: date
+        launch_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [active, complete]
+        max_sol:
+          type: integer
+        max_date:
+          type: string
+          format: date
+        total_photos:
+          type: integer
+        cameras:
+          type: array
+          items:
+            type: object
+
+    MarsPhotosResponse:
+      type: object
+      properties:
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarsPhoto'
+
+    MarsManifest:
+      type: object
+      properties:
+        photo_manifest:
+          $ref: '#/components/schemas/PhotoManifest'
+
+    PhotoManifest:
+      type: object
+      properties:
+        name:
+          type: string
+        landing_date:
+          type: string
+          format: date
+        launch_date:
+          type: string
+          format: date
+        status:
+          type: string
+        max_sol:
+          type: integer
+        max_date:
+          type: string
+          format: date
+        total_photos:
+          type: integer
+        photos:
+          type: array
+          items:
+            type: object
+
+    TechTransferResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+        count:
+          type: integer
+        total:
+          type: integer
+        perpage:
+          type: integer
+        page:
+          type: integer
+
+    MediaSearchResponse:
+      type: object
+      properties:
+        collection:
+          type: object
+          properties:
+            version:
+              type: string
+            href:
+              type: string
+              format: uri
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  links:
+                    type: array
+                    items:
+                      type: object
+            metadata:
+              type: object
+              properties:
+                total_hits:
+                  type: integer
+            links:
+              type: array
+              items:
+                type: object
+
+    MediaAssetResponse:
+      type: object
+      properties:
+        collection:
+          type: object
+          properties:
+            version:
+              type: string
+            href:
+              type: string
+              format: uri
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  href:
+                    type: string
+                    format: uri
+
+    ExoplanetResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    CadResponse:
+      type: object
+      properties:
+        signature:
+          type: object
+        count:
+          type: integer
+        fields:
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            type: array
+
+    SbdbResponse:
+      type: object
+      properties:
+        signature:
+          type: object
+        object:
+          type: object
+        ca_data:
+          type: array
+          items:
+            type: object
+        phys_par:
+          type: array
+          items:
+            type: object
+
+    SentryResponse:
+      type: object
+      properties:
+        signature:
+          type: object
+        count:
+          type: integer
+        data:
+          type: array
+          items:
+            type: object
+
+    ScoutResponse:
+      type: object
+      properties:
+        signature:
+          type: object
+        count:
+          type: integer
+        data:
+          type: array
+          items:
+            type: object
+
+    NhatsResponse:
+      type: object
+      properties:
+        signature:
+          type: object
+        count:
+          type: integer
+        data:
+          type: array
+          items:
+            type: object
+
+    FireballResponse:
+      type: object
+      properties:
+        signature:
+          type: object
+        count:
+          type: integer
+        fields:
+          type: array
+          items:
+            type: string
+        data:
+          type: array
+          items:
+            type: array
