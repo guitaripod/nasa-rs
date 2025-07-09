@@ -160,10 +160,10 @@ const SWAGGER_UI_HTML: &str = r#"<!DOCTYPE html>
 pub async fn get_openapi_json(_req: Request, _data: RouteContext<(Env, Context)>) -> worker::Result<Response> {
     // Parse YAML and convert to JSON
     let yaml_value: serde_yaml::Value = serde_yaml::from_str(OPENAPI_SPEC)
-        .map_err(|e| worker::Error::RustError(format!("Failed to parse OpenAPI spec: {}", e)))?;
+        .map_err(|e| worker::Error::RustError(format!("Failed to parse OpenAPI spec: {e}")))?;
     
     let json_string = serde_json::to_string_pretty(&yaml_value)
-        .map_err(|e| worker::Error::RustError(format!("Failed to convert to JSON: {}", e)))?;
+        .map_err(|e| worker::Error::RustError(format!("Failed to convert to JSON: {e}")))?;
     
     Response::ok(json_string)
         .map(|r| {

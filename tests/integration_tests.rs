@@ -1,6 +1,45 @@
 use std::collections::HashMap;
 use serde_json::{json, Value};
 
+// Helper functions
+fn is_valid_date_format(date: &str) -> bool {
+    use chrono::NaiveDate;
+    NaiveDate::parse_from_str(date, "%Y-%m-%d").is_ok()
+}
+
+fn is_valid_coordinate(lat: f64, lon: f64) -> bool {
+    (-90.0..=90.0).contains(&lat) && (-180.0..=180.0).contains(&lon)
+}
+
+fn is_valid_camera_for_rover(rover: &str, camera: &str) -> bool {
+    match rover {
+        "curiosity" => matches!(camera, "FHAZ" | "RHAZ" | "MAST" | "CHEMCAM" | "MAHLI" | "MARDI" | "NAVCAM"),
+        "opportunity" | "spirit" => matches!(camera, "FHAZ" | "RHAZ" | "NAVCAM" | "PANCAM" | "MINITES"),
+        _ => false,
+    }
+}
+
+fn parse_rate_limit_headers(headers: &HashMap<String, String>) -> (Option<u32>, Option<u32>) {
+    let limit = headers.get("X-RateLimit-Limit")
+        .and_then(|v| v.parse::<u32>().ok());
+    let remaining = headers.get("X-RateLimit-Remaining")
+        .and_then(|v| v.parse::<u32>().ok());
+    (limit, remaining)
+}
+
+fn generate_cache_key(endpoint: &str, params: &[(&str, &str)]) -> String {
+    let mut sorted_params = params.to_vec();
+    sorted_params.sort_by_key(|&(k, _)| k);
+    
+    let param_string = sorted_params
+        .iter()
+        .map(|(k, v)| format!("{k}={v}"))
+        .collect::<Vec<_>>()
+        .join("&");
+    
+    format!("{endpoint}:{param_string}")
+}
+
 #[cfg(test)]
 mod integration_tests {
     use super::*;
@@ -68,11 +107,11 @@ mod integration_tests {
         let invalid_dates = vec!["01-01-2024", "2024/01/01", "January 1, 2024", "not-a-date"];
         
         for date in valid_dates {
-            assert!(is_valid_date_format(date), "Date {} should be valid", date);
+            assert!(is_valid_date_format(date), "Date {date} should be valid");
         }
         
         for date in invalid_dates {
-            assert!(!is_valid_date_format(date), "Date {} should be invalid", date);
+            assert!(!is_valid_date_format(date), "Date {date} should be invalid");
         }
     }
     
@@ -163,43 +202,4 @@ mod integration_tests {
             );
         }
     }
-}
-
-// Helper functions that would be in the actual implementation
-fn is_valid_date_format(date: &str) -> bool {
-    use chrono::NaiveDate;
-    NaiveDate::parse_from_str(date, "%Y-%m-%d").is_ok()
-}
-
-fn is_valid_coordinate(lat: f64, lon: f64) -> bool {
-    lat >= -90.0 && lat <= 90.0 && lon >= -180.0 && lon <= 180.0
-}
-
-fn is_valid_camera_for_rover(rover: &str, camera: &str) -> bool {
-    match rover {
-        "curiosity" => matches!(camera, "FHAZ" | "RHAZ" | "MAST" | "CHEMCAM" | "MAHLI" | "MARDI" | "NAVCAM"),
-        "opportunity" | "spirit" => matches!(camera, "FHAZ" | "RHAZ" | "NAVCAM" | "PANCAM" | "MINITES"),
-        _ => false,
-    }
-}
-
-fn parse_rate_limit_headers(headers: &HashMap<String, String>) -> (Option<u32>, Option<u32>) {
-    let limit = headers.get("X-RateLimit-Limit")
-        .and_then(|v| v.parse::<u32>().ok());
-    let remaining = headers.get("X-RateLimit-Remaining")
-        .and_then(|v| v.parse::<u32>().ok());
-    (limit, remaining)
-}
-
-fn generate_cache_key(endpoint: &str, params: &[(&str, &str)]) -> String {
-    let mut sorted_params = params.to_vec();
-    sorted_params.sort_by_key(|&(k, _)| k);
-    
-    let param_string = sorted_params
-        .iter()
-        .map(|(k, v)| format!("{k}={v}"))
-        .collect::<Vec<_>>()
-        .join("&");
-    
-    format!("{endpoint}:{param_string}")
 }
