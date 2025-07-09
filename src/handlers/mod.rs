@@ -5,6 +5,8 @@
 
 /// Astronomy Picture of the Day (APOD) handler.
 pub mod apod;
+/// API documentation handlers.
+pub mod docs;
 /// Space Weather Database (DONKI) handlers.
 pub mod donki;
 /// Earth imagery and assets handlers.
