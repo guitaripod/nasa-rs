@@ -545,7 +545,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - NASA for providing these amazing public APIs
 - Cloudflare for the Workers platform
 - The Rust community for excellent libraries and tools
-
----
-
-Built with ❤️ by the Rust community
