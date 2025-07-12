@@ -1,7 +1,7 @@
 # NASA-RS 🚀
 
-[![CI/CD](https://github.com/marcusziade/nasa-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/marcusziade/nasa-rs/actions/workflows/ci.yml)
-[![GitHub Pages](https://github.com/marcusziade/nasa-rs/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/marcusziade/nasa-rs/actions/workflows/deploy-pages.yml)
+[![CI/CD](https://github.com/guitaripod/nasa-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/guitaripod/nasa-rs/actions/workflows/ci.yml)
+[![GitHub Pages](https://github.com/guitaripod/nasa-rs/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/guitaripod/nasa-rs/actions/workflows/deploy-pages.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=flat&logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange)](https://workers.cloudflare.com/)
