@@ -233,7 +233,7 @@ async fn main(req: Request, env: Env, ctx: Context) -> worker::Result<Response> 
             <h2>Quick Start</h2>
             <p>Make your first API request:</p>
             <div class="endpoints">
-                curl https://nasa-api-worker.guitaripod.workers.dev/api/apod
+                curl https://your-worker.workers.dev/api/apod
             </div>
             <p style="margin-top: 1rem;">For more examples and detailed usage, check out the <a href="/api/docs" style="color: #61affe;">API documentation</a>.</p>
         </div>

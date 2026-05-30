@@ -55,7 +55,7 @@ test_command() {
 echo -e "\n--- Configuration Commands ---"
 test_command "Config show" "config show"
 test_command "Config init" "config init"
-test_command "Config set API endpoint" "config set api_endpoint https://nasa-api.workers.dev"
+test_command "Config set API endpoint" "config set api_endpoint https://your-worker.workers.dev"
 test_command "Config set output format" "config set output_format json"
 
 # Test cache commands

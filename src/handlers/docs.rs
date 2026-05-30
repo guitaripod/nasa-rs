@@ -394,7 +394,7 @@ const SWAGGER_UI_HTML: &str = r#"<!DOCTYPE html>
     <div class="api-footer">
         <p>Built with Rust and Cloudflare Workers</p>
         <p>
-            <a href="https://github.com/marcusziade/nasa-rs">GitHub</a> · 
+            <a href="https://github.com/guitaripod/nasa-rs">GitHub</a> · 
             <a href="/">Home</a> · 
             <a href="https://api.nasa.gov">NASA APIs</a>
         </p>

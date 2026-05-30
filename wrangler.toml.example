@@ -1,0 +1,41 @@
+# wrangler.toml.example — template for self-hosting the nasa-rs worker.
+#
+# Do not put your real IDs here. Run ./scripts/setup-worker.sh, which copies this
+# file to wrangler.toml (gitignored) and fills in the KV namespace IDs it creates.
+# Then add your secret and deploy:
+#   wrangler secret put NASA_API_KEY    # free key at https://api.nasa.gov
+#   wrangler deploy
+
+name = "nasa-api-worker"
+main = "build/worker/shim.mjs"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[build]
+command = "bash scripts/build-worker.sh"
+
+[vars]
+ENVIRONMENT = "production"
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+
+[[kv_namespaces]]
+binding = "NASA_CACHE"
+id = "__NASA_CACHE_ID__"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "__RATE_LIMIT_ID__"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[env.development]
+vars = { ENVIRONMENT = "development" }
+
+[env.staging]
+vars = { ENVIRONMENT = "staging" }

@@ -38,14 +38,29 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
         };
     }
     
+    if let Ok(env_endpoint) = std::env::var("NASA_API_ENDPOINT") {
+        if !env_endpoint.trim().is_empty() {
+            config.api_endpoint = env_endpoint.trim().to_string();
+        }
+    }
+
     if let Some(endpoint) = matches.get_one::<String>("endpoint") {
         config.api_endpoint = endpoint.clone();
     }
-    
+
     if matches.get_flag("no-cache") {
         config.use_cache = false;
     }
-    
+
+    if config.api_endpoint.trim().is_empty() {
+        if let Some(name) = matches.subcommand_name() {
+            if name != "config" && name != "cache" {
+                eprintln!("{}", endpoint_not_configured_message());
+                process::exit(1);
+            }
+        }
+    }
+
     // Create command context
     let context = CommandContext {
         config: config.clone(),
@@ -66,9 +81,22 @@ async fn run() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+/// Guidance shown when the CLI has no worker endpoint configured yet.
+fn endpoint_not_configured_message() -> String {
+    format!(
+        "{} no NASA worker endpoint is configured.\n\n\
+         nasa-cli talks to a Cloudflare Worker that you host yourself. Deploy one\n\
+         (see https://github.com/guitaripod/nasa-rs#self-hosting), then point the CLI at it:\n\n\
+         \x20\x20export NASA_API_ENDPOINT=https://your-worker.workers.dev\n\
+         \x20\x20# or persist it:\n\
+         \x20\x20nasa config set api_endpoint https://your-worker.workers.dev",
+        "Error:".red().bold()
+    )
+}
+
 fn build_cli() -> Command {
     Command::new("nasa")
-        .version("1.0.0")
+        .version(env!("CARGO_PKG_VERSION"))
         .author("NASA API CLI")
         .about("Command-line interface for NASA APIs")
         .arg_required_else_help(true)

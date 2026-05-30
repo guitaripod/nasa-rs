@@ -63,15 +63,32 @@ jobs:
     
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
-    
+      with:
+        targets: wasm32-unknown-unknown
+
     - name: Install wrangler
       run: npm install -g wrangler
-    
+
+    - name: Generate wrangler.toml from template
+      env:
+        NASA_CACHE_ID: ${{ vars.NASA_CACHE_ID }}
+        RATE_LIMIT_ID: ${{ vars.RATE_LIMIT_ID }}
+      run: |
+        if [ -z "$NASA_CACHE_ID" ] || [ -z "$RATE_LIMIT_ID" ]; then
+          echo "::error::Set repository variables NASA_CACHE_ID and RATE_LIMIT_ID to enable auto-deploy."
+          exit 1
+        fi
+        cp wrangler.toml.example wrangler.toml
+        sed -i \
+          -e "s/__NASA_CACHE_ID__/${NASA_CACHE_ID}/" \
+          -e "s/__RATE_LIMIT_ID__/${RATE_LIMIT_ID}/" \
+          wrangler.toml
+
     - name: Deploy to Cloudflare
       env:
         CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       run: |
-        wrangler deploy --env production
+        wrangler deploy
 
   release:
     name: Create Release

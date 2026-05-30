@@ -26,28 +26,42 @@ A production-ready Rust Cloudflare Worker and CLI for accessing NASA's public AP
 - **Interactive Features**: Progress bars, colored output, and prompts
 - **Comprehensive Commands**: Full coverage of all NASA APIs
 
-## Quick Start
+## ⚠️ This project is self-hosted
 
-### Worker Deployment
+nasa-rs ships with **no backend**. The CLI talks to a Cloudflare Worker that **you deploy and own** — your NASA API key, your KV cache, your rate limits. There is no shared or default endpoint baked in. Deploy the worker first, then point the CLI at it.
 
-1. **Install Dependencies**
+## Self-Hosting
+
+### Prerequisites
+
+- A Cloudflare account (the free tier is enough)
+- [`wrangler`](https://developers.cloudflare.com/workers/wrangler/install-and-update/) installed and authenticated (`wrangler login`)
+- A free NASA API key from https://api.nasa.gov (or use `DEMO_KEY` for low volume)
+
+### Deploy your worker
+
 ```bash
-npm install -g wrangler
-```
+git clone https://github.com/guitaripod/nasa-rs
+cd nasa-rs
 
-2. **Configure Secrets**
-```bash
-# Add your NASA API key
-wrangler secret put NASA_API_KEY
-# Enter: YOUR_NASA_API_KEY_HERE
-```
+# Creates the KV namespaces, writes their IDs into wrangler.toml, and sets your secret
+./scripts/setup-worker.sh
 
-3. **Deploy to Cloudflare**
-```bash
 wrangler deploy
 ```
 
-### CLI Installation
+`setup-worker.sh` copies `wrangler.toml.example` to `wrangler.toml`, creates the `NASA_CACHE` and `RATE_LIMIT` KV namespaces, fills in their IDs, and prompts for the `NASA_API_KEY` secret. Prefer to do it by hand? See [`wrangler.toml.example`](wrangler.toml.example).
+
+### Continuous deployment (optional)
+
+The GitHub Actions workflow auto-deploys on push to `master`. Because `wrangler.toml` is gitignored (it holds your namespace IDs), CI rebuilds it from `wrangler.toml.example`. Add these to your repository:
+
+- Secret `CLOUDFLARE_API_TOKEN`
+- Variables `NASA_CACHE_ID`, `RATE_LIMIT_ID`
+
+## Using the CLI
+
+### Install
 
 ```bash
 # Build and install the CLI
@@ -56,6 +70,21 @@ cargo install --path . --features cli
 # Or for development
 cargo build --release --features cli
 ./target/release/nasa-cli --help
+```
+
+### Point the CLI at your worker
+
+The CLI refuses NASA commands until a backend is configured. Set yours once:
+
+```bash
+nasa config set api_endpoint https://your-worker.workers.dev
+```
+
+Or override per-invocation (precedence: `--endpoint` > `NASA_API_ENDPOINT` env > config file):
+
+```bash
+export NASA_API_ENDPOINT=https://your-worker.workers.dev
+nasa --endpoint https://your-worker.workers.dev apod today
 ```
 
 ### Basic Usage
@@ -300,7 +329,7 @@ nasa config init
 Configuration file location: `~/.config/nasa-cli/config.toml`
 
 ```toml
-api_endpoint = "https://nasa-api.workers.dev"
+api_endpoint = "https://your-worker.workers.dev"
 output_format = "pretty"  # json, table, pretty, csv
 use_cache = true
 cache_dir = "~/.config/nasa-cli/cache"
@@ -501,7 +530,7 @@ RUST_LOG=debug nasa apod today
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/nasa-rs
+git clone https://github.com/guitaripod/nasa-rs
 cd nasa-rs
 
 # Build the worker

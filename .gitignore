@@ -7,3 +7,6 @@ wrangler.log
 .DS_Store
 worker-configuration.d.ts
 .wrangler/
+
+# Self-host config holds your real KV namespace IDs; use wrangler.toml.example as the template
+/wrangler.toml

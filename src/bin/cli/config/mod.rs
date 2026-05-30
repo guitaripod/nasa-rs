@@ -5,6 +5,7 @@ use tokio::fs;
 use crate::cli::output::OutputFormat;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
 pub struct Config {
     pub api_endpoint: String,
     pub output_format: OutputFormat,
@@ -20,7 +21,7 @@ impl Default for Config {
             .unwrap_or_else(|| PathBuf::from(".nasa-cache"));
             
         Self {
-            api_endpoint: "https://nasa-api-worker.guitaripod.workers.dev".to_string(),
+            api_endpoint: String::new(),
             output_format: OutputFormat::Pretty,
             use_cache: true,
             cache_dir,

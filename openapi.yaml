@@ -26,7 +26,7 @@ info:
     - **Tech Transfer**: NASA technology innovations
 
     ## Getting Started
-    All endpoints are available at `https://nasa-api-worker.guitaripod.workers.dev/api/*`
+    All endpoints are available at `https://your-worker.workers.dev/api/*`
     
     No authentication is required - the proxy handles NASA API keys internally.
 
@@ -39,14 +39,16 @@ info:
   version: 1.0.0
   contact:
     name: API Support
-    url: https://github.com/yourusername/nasa-api-proxy
+    url: https://github.com/guitaripod/nasa-rs
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: https://nasa-api-worker.guitaripod.workers.dev
-    description: Production server
+  - url: https://your-worker.workers.dev
+    description: Your self-hosted Cloudflare Worker (replace with your own deployment URL)
+  - url: http://localhost:8787
+    description: Local development (wrangler dev)
 
 tags:
   - name: APOD

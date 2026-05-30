@@ -35,7 +35,7 @@ cargo build --release
 You can specify a custom API endpoint (like the Cloudflare Worker) using the `--endpoint` flag:
 
 ```bash
-nasa-cli --endpoint https://nasa-api-worker.guitaripod.workers.dev <command>
+nasa-cli --endpoint https://your-worker.workers.dev <command>
 ```
 
 ### Global Options
