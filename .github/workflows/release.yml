@@ -60,14 +60,35 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build CLI
+        run: cargo build --release --features cli --bin nasa-cli
+
+      - name: Package binary
+        run: |
+          mkdir -p nasa-cli-x86_64-unknown-linux-gnu
+          cp target/release/nasa-cli nasa-cli-x86_64-unknown-linux-gnu/
+          cp README.md LICENSE nasa-cli-x86_64-unknown-linux-gnu/
+          tar czf nasa-cli-x86_64-unknown-linux-gnu.tar.gz nasa-cli-x86_64-unknown-linux-gnu
+
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: ${{ github.ref_name }}
           draft: false
           prerelease: false
+          files: nasa-cli-x86_64-unknown-linux-gnu.tar.gz
           body: |
-            ## Changes in ${{ github.ref_name }}
-            
-            See [CHANGELOG](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) for details.
+            ## ${{ github.ref_name }} — Self-hostable
+
+            The `nasa` CLI no longer ships with a default backend. Deploy your own
+            Cloudflare Worker (see the [self-hosting guide](https://github.com/${{ github.repository }}#self-hosting))
+            and point the CLI at it:
+
+            ```bash
+            curl -L https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/nasa-cli-x86_64-unknown-linux-gnu.tar.gz | tar xz
+            nasa-cli-x86_64-unknown-linux-gnu/nasa-cli config set api_endpoint https://your-worker.workers.dev
+            ```
