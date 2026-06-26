@@ -3,8 +3,14 @@ main = "build/worker/shim.mjs"
 compatibility_date = "2024-01-01"
 workers_dev = true
 
+# worker-build pinned to 0.1.x: newer worker-build requires worker >= 0.8.5, but this crate
+# targets worker 0.6 (upgrading the framework is a separate, larger task).
 [build]
-command = "cargo install -q worker-build && ~/.cargo/bin/worker-build --release --no-opt"
+command = "cargo install -q worker-build --version '^0.1' && ~/.cargo/bin/worker-build --release --no-opt"
+
+# Pre-warm the JWST catalog daily so the ~50s rebuild never lands on a user request.
+[triggers]
+crons = ["0 6 * * *"]
 
 [vars]
 ENVIRONMENT = "production"
@@ -26,6 +32,12 @@ id = "3e91cbfaa6fe405e9d4aeae78f47e4ff"
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
 id = "ce2a522e723542cda892659f3e3a5b67"
+
+# Worker-to-worker call to the JWST image proxy. A direct fetch to *.workers.dev from a Worker is
+# blocked (Cloudflare error 1042); a service binding is the supported path.
+[[services]]
+binding = "JWST_PROVIDER"
+service = "jwst-provider"
 
 [env.production]
 vars = { ENVIRONMENT = "production" }
