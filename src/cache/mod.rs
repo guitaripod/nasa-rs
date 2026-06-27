@@ -13,30 +13,33 @@ pub struct CacheManager {
     kv: KvStore,
 }
 
+/// How long a logically-expired entry is kept in KV beyond its freshness window, so it can be
+/// served stale when NASA's upstream is failing. Far better to show day-old data than a 500.
+const STALE_WINDOW_MINUTES: i64 = 7 * 24 * 60; // 7 days
+
 impl CacheManager {
     pub fn new(env: &Env) -> worker::Result<Self> {
         let kv = env.kv("NASA_CACHE")?;
-        
+
         Ok(Self { kv })
     }
-    
+
+    /// Returns a cached entry only if it is still fresh. Expired entries are NOT deleted — they
+    /// survive (up to the stale window) so `get_stale` can serve them on an upstream failure.
     pub async fn get(&self, key: &str) -> worker::Result<Option<CachedResponse>> {
         match self.kv.get(key).json::<CachedResponse>().await {
-            Ok(Some(cached)) => {
-                // Check if cache is expired
-                if cached.expires_at > Utc::now() {
-                    Ok(Some(cached))
-                } else {
-                    // Delete expired cache
-                    let _ = self.kv.delete(key).await;
-                    Ok(None)
-                }
-            }
-            Ok(None) => Ok(None),
+            Ok(Some(cached)) if cached.expires_at > Utc::now() => Ok(Some(cached)),
+            Ok(_) => Ok(None),
             Err(e) => Err(e.into()),
         }
     }
-    
+
+    /// Returns any non-evicted entry regardless of freshness — used as a fallback when the upstream
+    /// fetch fails, so users see (stale) content instead of an error.
+    pub async fn get_stale(&self, key: &str) -> worker::Result<Option<CachedResponse>> {
+        self.kv.get(key).json::<CachedResponse>().await.map_err(Into::into)
+    }
+
     pub async fn set(&self, key: &str, data: serde_json::Value, ttl_minutes: i64) -> worker::Result<()> {
         let now = Utc::now();
         let cached_response = CachedResponse {
@@ -44,15 +47,18 @@ impl CacheManager {
             cached_at: now,
             expires_at: now + Duration::minutes(ttl_minutes),
         };
-        
+
+        // KV keeps the entry well past its freshness window so it remains available as a stale
+        // fallback; `get` enforces logical freshness via `expires_at`.
+        let kv_ttl_seconds = (ttl_minutes + STALE_WINDOW_MINUTES).max(60) as u64 * 60;
         self.kv
             .put(key, serde_json::to_string(&cached_response).map_err(|e| worker::Error::RustError(e.to_string()))?)
             ?
-            .expiration_ttl(ttl_minutes as u64 * 60)
+            .expiration_ttl(kv_ttl_seconds)
             .execute()
             .await
             ?;
-        
+
         Ok(())
     }
     

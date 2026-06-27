@@ -14,6 +14,10 @@ workers_dev = true
 [build]
 command = "bash scripts/build-worker.sh"
 
+# Pre-warm the JWST catalog daily so its ~50s rebuild never lands on a user request.
+[triggers]
+crons = ["0 6 * * *"]
+
 [vars]
 ENVIRONMENT = "production"
 
@@ -30,6 +34,13 @@ id = "__NASA_CACHE_ID__"
 [[kv_namespaces]]
 binding = "RATE_LIMIT"
 id = "__RATE_LIMIT_ID__"
+
+# The /api/jwst handler calls the jwst-provider worker. A direct fetch to another *.workers.dev
+# from a Worker is blocked (Cloudflare error 1042), so a service binding is required. Self-hosters
+# without a jwst-provider can drop this and the /api/jwst route.
+[[services]]
+binding = "JWST_PROVIDER"
+service = "jwst-provider"
 
 [env.production]
 vars = { ENVIRONMENT = "production" }

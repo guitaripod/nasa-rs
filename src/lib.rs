@@ -31,7 +31,6 @@ mod error;
 mod handlers;
 mod middleware;
 mod models;
-mod router;
 mod utils;
 #[macro_use]
 mod macros;
@@ -257,7 +256,10 @@ async fn main(req: Request, env: Env, ctx: Context) -> worker::Result<Response> 
         
         // APOD (Astronomy Picture of the Day)
         .get_async("/api/apod", handlers::apod::get_apod)
-        
+
+        // JWST imagery (enriched + mosaic-prioritised)
+        .get_async("/api/jwst", handlers::jwst::get_jwst)
+
         // NeoWs (Near Earth Objects)
         .get_async("/api/neo/feed", handlers::neo::get_neo_feed)
         .get_async("/api/neo/:asteroid_id", handlers::neo::get_neo_lookup)
@@ -330,4 +332,14 @@ async fn main(req: Request, env: Env, ctx: Context) -> worker::Result<Response> 
             console_error!("Router error: {}", err);
             Response::error("Internal Server Error", 500)
         })
+}
+
+/// Scheduled trigger: pre-warm the expensive JWST catalog so the ~50s rebuild never lands on a
+/// user request.
+#[event(scheduled)]
+async fn scheduled(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
+    console_error_panic_hook::set_once();
+    if let Err(e) = handlers::jwst::warm_catalog(&env).await {
+        console_error!("JWST catalog warm failed: {e}");
+    }
 }
