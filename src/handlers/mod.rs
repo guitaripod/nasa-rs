@@ -27,6 +27,8 @@ pub mod neo;
 pub mod ssd;
 /// Technology Transfer handlers.
 pub mod tech;
+/// Webb telescope live status + curated gallery.
+pub mod webb;
 
 // Common handler utilities
 use worker::{Response, RouteContext, Env, Context, Delay};
