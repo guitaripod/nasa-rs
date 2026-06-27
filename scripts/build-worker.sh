@@ -27,8 +27,15 @@ esac
 
 cargo install -q "worker-build@${WORKER_BUILD_VERSION}"
 
+# worker-build resolves its cache via the platform cache dir: ~/Library/Caches on macOS,
+# $XDG_CACHE_HOME or ~/.cache on Linux. Seeding the wrong one silently no-ops the pin.
+case "$(uname -s)" in
+    Darwin) CACHE_BASE="$HOME/Library/Caches/worker-build" ;;
+    *) CACHE_BASE="${XDG_CACHE_HOME:-$HOME/.cache}/worker-build" ;;
+esac
+
 if [ -n "$TARGET" ]; then
-    cache="$HOME/.cache/worker-build/wasm-bindgen-${TARGET}-${WORKER_BUILD_EXPECTS}"
+    cache="${CACHE_BASE}/wasm-bindgen-${TARGET}-${WORKER_BUILD_EXPECTS}"
     if [ "$("${cache}/wasm-bindgen" --version 2>/dev/null)" != "wasm-bindgen ${WASM_BINDGEN_VERSION}" ]; then
         pkg="wasm-bindgen-${WASM_BINDGEN_VERSION}-${TARGET}"
         url="https://github.com/wasm-bindgen/wasm-bindgen/releases/download/${WASM_BINDGEN_VERSION}/${pkg}.tar.gz"
