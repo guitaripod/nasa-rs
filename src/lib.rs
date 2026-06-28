@@ -260,6 +260,12 @@ async fn main(req: Request, env: Env, ctx: Context) -> worker::Result<Response> 
         // JWST imagery (enriched + mosaic-prioritised)
         .get_async("/api/jwst", handlers::jwst::get_jwst)
 
+        // Webb: live "Where Is Webb" status + curated, captioned gallery by collection
+        .get_async("/api/jwst/status", handlers::webb::get_status)
+        .get_async("/api/jwst/collections", handlers::webb::get_collections)
+        .get_async("/api/jwst/gallery", handlers::webb::get_gallery)
+        .get_async("/api/jwst/search", handlers::webb::get_search)
+
         // NeoWs (Near Earth Objects)
         .get_async("/api/neo/feed", handlers::neo::get_neo_feed)
         .get_async("/api/neo/:asteroid_id", handlers::neo::get_neo_lookup)
@@ -341,5 +347,8 @@ async fn scheduled(_event: ScheduledEvent, env: Env, _ctx: ScheduleContext) {
     console_error_panic_hook::set_once();
     if let Err(e) = handlers::jwst::warm_catalog(&env).await {
         console_error!("JWST catalog warm failed: {e}");
+    }
+    if let Err(e) = handlers::webb::warm_gallery(&env).await {
+        console_error!("Webb gallery warm failed: {e}");
     }
 }
