@@ -81,6 +81,7 @@ paths:
       description: |
         Retrieve the Astronomy Picture of the Day with explanation. Returns daily space imagery 
         ranging from photographs to artist concepts, each with a brief scientific explanation.
+        Served from NASA's science.nasa.gov publication; a range may span at most 366 days.
       parameters:
         - name: date
           in: query
@@ -107,7 +108,7 @@ paths:
           schema:
             type: integer
             minimum: 1
-            maximum: 100
+            maximum: 20
         - name: thumbs
           in: query
           description: Include thumbnail URL for video APODs

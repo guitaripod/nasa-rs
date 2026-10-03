@@ -26,6 +26,7 @@
 
 use worker::*;
 
+mod apod;
 mod cache;
 mod error;
 mod handlers;

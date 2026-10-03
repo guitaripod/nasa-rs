@@ -137,6 +137,13 @@ nasa apod date 2023-07-20
 # Random pictures
 nasa apod random --count 5
 ```
+
+Pictures are read from NASA's own publication on `science.nasa.gov` (the WordPress `image-article`
+posts in the APOD category) and returned in the classic APOD JSON shape. `api.nasa.gov/planetary/apod`
+is only a fallback: since `apod.nasa.gov` was retired it answers every date with the "NASA Science"
+logo, and any entry that looks like that placeholder is discarded and never cached. Ranges may span
+at most 366 days and `count` at most 20. The `X-Apod-Source` response header says which source
+answered (`science.nasa.gov`, `api.nasa.gov` or `cache`).
 </details>
 
 <details>
