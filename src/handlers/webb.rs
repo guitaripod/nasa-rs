@@ -210,7 +210,7 @@ pub async fn get_gallery(req: Request, ctx: RouteContext<HandlerContext>) -> wor
 
     let filtered: Vec<&GalleryItem> = catalog
         .iter()
-        .filter(|it| want.map_or(true, |w| it.collection == w))
+        .filter(|it| want.is_none_or(|w| it.collection == w))
         .collect();
     let start = (page - 1) * per_page;
     let slice: Vec<&&GalleryItem> = filtered.iter().skip(start).take(per_page).collect();
@@ -468,7 +468,7 @@ fn string_list(v: Option<&Value>) -> Vec<String> {
         .map(|a| {
             a.iter()
                 .filter_map(Value::as_str)
-                .map(|s| decode_py_bytes(s))
+                .map(decode_py_bytes)
                 .filter(|s| !s.is_empty())
                 .collect()
         })
@@ -521,7 +521,7 @@ fn thousands(value: f64) -> String {
     let s = n.abs().to_string();
     let mut out = String::new();
     for (i, c) in s.chars().enumerate() {
-        if i > 0 && (s.len() - i) % 3 == 0 {
+        if i > 0 && (s.len() - i).is_multiple_of(3) {
             out.push(',');
         }
         out.push(c);

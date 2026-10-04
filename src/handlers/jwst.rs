@@ -167,7 +167,7 @@ fn enrich(raw: RawItem) -> EnrichedItem {
     let tokens: Vec<String> = raw
         .observation_id
         .to_lowercase()
-        .split(|c| c == '_' || c == '-')
+        .split(['_', '-'])
         .filter(|s| !s.is_empty())
         .map(|s| s.to_string())
         .collect();
